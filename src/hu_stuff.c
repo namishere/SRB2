@@ -336,60 +336,6 @@ static boolean chat_scrollmedown = false; // force instant scroll down on the ch
 
 static INT16 addy = 0; // use this to make the messages scroll smoothly when one fades away
 
-size_t HU_StringLength(const UINT8 *str)
-{
-	UINT32 i = 0;
-	size_t len = 0;
-	while (true)
-	{
-		UINT8 ch = str[i];
-		if (!ch)
-			break;
-		if ((ch >= HU_FONTSTART && hu_font[ch-HU_FONTSTART]) || ch == ' ')
-			len++;
-		i++;
-	}
-	return len;
-}
-
-void HU_StringCopy(UINT8 *dest, const UINT8 *src)
-{
-	UINT32 i = 0;
-	while (true)
-	{
-		dest[i] = src[i];
-		if (!dest[i])
-		{
-			dest[i] = '\0';
-			break;
-		}
-		i++;
-	}
-}
-
-void HU_StringCopyLen(UINT8 *dest, const UINT8 *src, size_t len)
-{
-	UINT32 i;
-	for (i = 0; i < len; i++)
-	{
-		dest[i] = src[i];
-		if (!dest[i])
-		{
-			dest[i] = '\0';
-			break;
-		}
-	}
-	dest[len-1] = '\0';
-}
-
-UINT8 *HU_StringCopyAlloc(const UINT8 *src)
-{
-	size_t length = HU_StringLength(src);
-	UINT8 *buf = Z_Malloc(length + 1, PU_STATIC, NULL);
-	HU_StringCopy(buf, src);
-	return buf;
-}
-
 static void HU_removeChatText_Mini(void)
 {
     // Lactozilla: Don't create new arrays, just iterate through an existing one
@@ -445,6 +391,60 @@ void HU_AddChatText(const char *text, boolean playsound)
 	(void)playsound;
 	CONS_Printf("%s\n", text);
 #endif
+}
+
+size_t HU_StringLength(const UINT8 *str)
+{
+	UINT32 i = 0;
+	size_t len = 0;
+	while (true)
+	{
+		UINT8 ch = str[i];
+		if (!ch)
+			break;
+		if ((ch >= HU_FONTSTART && hu_font[ch-HU_FONTSTART]) || ch == ' ')
+			len++;
+		i++;
+	}
+	return len;
+}
+
+void HU_StringCopy(UINT8 *dest, const UINT8 *src)
+{
+	UINT32 i = 0;
+	while (true)
+	{
+		dest[i] = src[i];
+		if (!dest[i])
+		{
+			dest[i] = '\0';
+			break;
+		}
+		i++;
+	}
+}
+
+void HU_StringCopyLen(UINT8 *dest, const UINT8 *src, size_t len)
+{
+	UINT32 i;
+	for (i = 0; i < len; i++)
+	{
+		dest[i] = src[i];
+		if (!dest[i])
+		{
+			dest[i] = '\0';
+			break;
+		}
+	}
+	dest[len-1] = '\0';
+}
+
+UINT8 *HU_StringCopyAlloc(const UINT8 *src)
+{
+	size_t length = HU_StringLength(src);
+	UINT8 *buf = Z_Malloc(length + 1, PU_STATIC, NULL);
+	HU_StringCopy(buf, src);
+	return buf;
 }
 
 #ifndef NONET
