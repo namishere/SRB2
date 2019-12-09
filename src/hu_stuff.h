@@ -78,10 +78,10 @@ typedef struct
 void HU_AddChatText(const char *text, boolean playsound);
 
 // Lactokaiju
-size_t HU_StringLength(UINT8 *str);
-void HU_StringCopy(UINT8 *dest, UINT8 *src);
-void HU_StringCopyLen(UINT8 *dest, UINT8 *src, size_t len);
-UINT8 *HU_StringCopyAlloc(UINT8 *src);
+size_t HU_StringLength(const UINT8 *str);
+void HU_StringCopy(UINT8 *dest, const UINT8 *src);
+void HU_StringCopyLen(UINT8 *dest, const UINT8 *src, size_t len);
+UINT8 *HU_StringCopyAlloc(const UINT8 *src);
 
 // set true when entering a chat message
 extern boolean chat_on;

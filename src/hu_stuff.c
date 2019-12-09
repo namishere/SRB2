@@ -336,25 +336,25 @@ static boolean chat_scrollmedown = false; // force instant scroll down on the ch
 
 static INT16 addy = 0; // use this to make the messages scroll smoothly when one fades away
 
-size_t HU_StringLength(UINT8 *str)
+size_t HU_StringLength(const UINT8 *str)
 {
-	INT32 i = 0;
-	INT32 len = 0;
+	UINT32 i = 0;
+	size_t len = 0;
 	while (true)
 	{
 		UINT8 ch = str[i];
 		if (!ch)
 			break;
-		if ((ch >= HU_FONTSTART && ch <= HU_FONTEND && hu_font[ch-HU_FONTSTART]) || ch == ' ')
+		if ((ch >= HU_FONTSTART && hu_font[ch-HU_FONTSTART]) || ch == ' ')
 			len++;
 		i++;
 	}
 	return len;
 }
 
-void HU_StringCopy(UINT8 *dest, UINT8 *src)
+void HU_StringCopy(UINT8 *dest, const UINT8 *src)
 {
-	INT32 i = 0;
+	UINT32 i = 0;
 	while (true)
 	{
 		dest[i] = src[i];
@@ -367,9 +367,9 @@ void HU_StringCopy(UINT8 *dest, UINT8 *src)
 	}
 }
 
-void HU_StringCopyLen(UINT8 *dest, UINT8 *src, size_t len)
+void HU_StringCopyLen(UINT8 *dest, const UINT8 *src, size_t len)
 {
-	INT32 i;
+	UINT32 i;
 	for (i = 0; i < len; i++)
 	{
 		dest[i] = src[i];
@@ -382,7 +382,7 @@ void HU_StringCopyLen(UINT8 *dest, UINT8 *src, size_t len)
 	dest[len-1] = '\0';
 }
 
-UINT8 *HU_StringCopyAlloc(UINT8 *src)
+UINT8 *HU_StringCopyAlloc(const UINT8 *src)
 {
 	size_t length = HU_StringLength(src);
 	UINT8 *buf = Z_Malloc(length + 1, PU_STATIC, NULL);
@@ -427,13 +427,13 @@ void HU_AddChatText(const char *text, boolean playsound)
 	if (chat_nummsg_log >= CHAT_BUFSIZE) // too many messages!
 		HU_removeChatText_Log();
 
-	HU_StringCopyLen((UINT8 *)chat_log[chat_nummsg_log], (UINT8 *)text, CHATLENGTH);
+	HU_StringCopyLen((UINT8 *)chat_log[chat_nummsg_log], (const UINT8 *)text, CHATLENGTH);
 	chat_nummsg_log++;
 
 	if (chat_nummsg_min >= 8)
 		HU_removeChatText_Mini();
 
-	HU_StringCopyLen((UINT8 *)chat_mini[chat_nummsg_min], (UINT8 *)text, CHATLENGTH);
+	HU_StringCopyLen((UINT8 *)chat_mini[chat_nummsg_min], (const UINT8 *)text, CHATLENGTH);
 	chat_timers[chat_nummsg_min] = TICRATE*cv_chattime.value;
 	chat_nummsg_min++;
 
@@ -973,7 +973,7 @@ static inline boolean HU_keyInChatString(char *s, UINT8 ch)
 	if (chat_delay)
 		return false;
 
-	if ((ch >= HU_FONTSTART && ch <= HU_FONTEND && hu_font[ch-HU_FONTSTART])
+	if ((ch >= HU_FONTSTART && hu_font[ch-HU_FONTSTART])
 	  || ch == ' ') // Allow spaces, of course
 	{
 		l = HU_StringLength((UINT8 *)s);
@@ -1100,7 +1100,7 @@ static void HU_queueChatChar(char c)
 
 		do {
 			c = w_chat[-2+ci++];
-			if (!c || (((UINT8)c >= 32 && (UINT8)c <= HU_FONTEND) && !(HU_IsColorCode(c)))) // copy printable characters and terminating '\0' only.
+			if (!c || (((UINT8)c >= 32) && !(HU_IsColorCode(c)))) // copy printable characters and terminating '\0' only.
 				buf[ci-1]=c;
 		} while (c);
 
@@ -1173,7 +1173,7 @@ static void HU_queueChatChar(char c)
 
 			// we need to get rid of the /pm<node>
 			newmsg = msg+5+spc;
-			HU_StringCopyLen((UINT8 *)msg, (UINT8 *)newmsg, CHATLENGTH);
+			HU_StringCopyLen((UINT8 *)msg, (const UINT8 *)newmsg, CHATLENGTH);
 		}
 		if (ci > 3) // don't send target+flags+empty message.
 		{
@@ -1390,10 +1390,10 @@ static char *CHAT_WordWrap(INT32 x, INT32 w, INT32 option, const char *string)
 	INT32 c;
 	size_t chw, i, lastusablespace = 0;
 	size_t slen;
-	UINT8 *newstring = HU_StringCopyAlloc((UINT8 *)string); //(UINT8 *)Z_StrDup(string);
+	UINT8 *newstring = HU_StringCopyAlloc((const UINT8 *)string); //(UINT8 *)Z_StrDup(string);
 	INT32 spacewidth = (vid.width < 640) ? 8 : 4, charwidth = (vid.width < 640) ? 8 : 4;
 
-	slen = HU_StringLength((UINT8 *)string);
+	slen = HU_StringLength((const UINT8 *)string);
 	x = 0;
 
 	for (i = 0; i < slen; ++i)
