@@ -2136,7 +2136,7 @@ char *V_WordWrap(INT32 x, INT32 w, INT32 option, const char *string)
 void V_DrawString(INT32 x, INT32 y, INT32 option, const char *string)
 {
 	INT32 w, c, cx = x, cy = y, dupx, dupy, scrwidth, center = 0, left = 0;
-	const char *ch = string;
+	const UINT8 *ch = (const UINT8 *)string;
 	INT32 charflags = (option & V_CHARCOLORMASK);
 	const UINT8 *colormap = NULL;
 	INT32 spacewidth = 4, charwidth = 0;

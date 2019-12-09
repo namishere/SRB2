@@ -916,8 +916,15 @@ boolean EnsurePlayerNameIsGood(char *name, INT32 playernum)
 	// Also, anything over 0x80 is disallowed too, since compilers love to
 	// differ on whether they're printable characters or not.
 	for (ix = 0; name[ix] != '\0'; ix++)
-		if (!isprint(name[ix]) || name[ix] == ';' || HU_IsColorCode((UINT8)(name[ix])))
+	{
+		UINT8 printable = isprint(name[ix]);
+		// Lactozilla: Apparently Unicode isn't printable.
+		// Oh well.
+		if ((UINT8)name[ix] > 0x7F)
+			printable = 1;
+		if (!printable || name[ix] == ';' || HU_IsColorCode((UINT8)(name[ix])))
 			return false;
+	}
 
 	// Check if a player is currently using the name, case-insensitively.
 	for (ix = 0; ix < MAXPLAYERS; ix++)
