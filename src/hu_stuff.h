@@ -23,7 +23,7 @@
 //------------------------------------
 #define HU_FONTSTART '\x16' // the first font character
 #define HU_FONTEND 0xFF // ÿ
-#define HU_FONTEXT 0xA1 // ¡
+#define HU_FONTEXT 97 // ¡
 
 #define HU_COLORSTART 0x80
 #define HU_COLOREND 0x8F
