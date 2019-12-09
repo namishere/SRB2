@@ -49,7 +49,7 @@
 // Bill Gates keys
 #define KEY_LEFTWIN  (0x100+16)
 #define KEY_RIGHTWIN (0x100+17)
-#define KEY_MENU     (0x100+18)
+#define KEY_MENU     (0x100+18) // Context Menu
 
 #define KEY_KPADSLASH  (0x100+19)
 #define KEY_HOME       (0x100+20)
@@ -77,7 +77,10 @@
 #define KEY_F11 (0x100+40)
 #define KEY_F12 (0x100+41)
 
-#define KEY_PAUSE 255
+#define KEY_CAPSLOCK (0x100+42)
+#define KEY_CONSOLE '`' // (0x100+43)
+#define KEY_PAUSE (0x100+44)
+#define KEY_PRTSC (0x100+45)
 
 // these ones must be non-extended scancodes (rctrl, rshift, lalt)
 #define KEY_LSHIFT (0x100+42)
@@ -86,11 +89,5 @@
 #define KEY_RCTRL  (0x100+45)
 #define KEY_LALT   (0x100+46)
 #define KEY_RALT   (0x100+47)
-
-#define KEY_CAPSLOCK (0x100+48)
-#define KEY_CONSOLE  '`'
-
-#define KEY_OPENBRACKETS
-#define KEY_CLOSEBRACKETS
 
 #endif

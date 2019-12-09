@@ -295,8 +295,9 @@ static INT32 Impl_SDL_Scancode_To_Keycode(SDL_Scancode code, Uint32 type)
 		case SDLK_TAB:            return KEY_TAB;
 		case SDLK_SPACE:          return KEY_SPACE;
 		case SDLK_CAPSLOCK:       return KEY_CAPSLOCK;
-		case SDLK_PRINTSCREEN:    return 0; // undefined?
+		case SDLK_PRINTSCREEN:    return KEY_PRTSC;
 		case SDLK_SCROLLLOCK:     return KEY_SCROLLLOCK;
+		case SDLK_APPLICATION:    return KEY_MENU;
 		case SDLK_PAUSE:          return KEY_PAUSE;
 		case SDLK_INSERT:         return KEY_INS;
 		case SDLK_HOME:           return KEY_HOME;

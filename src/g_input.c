@@ -245,13 +245,14 @@ static keyname_t keynames[] =
 	{KEY_TAB, "TAB"},
 	{KEY_ESCAPE, "ESCAPE"},
 	{KEY_BACKSPACE, "BACKSPACE"},
+	{KEY_PRTSC, "PRINTSCREEN"},
 
 	{KEY_NUMLOCK, "NUMLOCK"},
 	{KEY_SCROLLLOCK, "SCROLLLOCK"},
 
 	// bill gates keys
-	{KEY_LEFTWIN, "LEFTWIN"},
-	{KEY_RIGHTWIN, "RIGHTWIN"},
+	{KEY_LEFTWIN, "LEFTGUI"},
+	{KEY_RIGHTWIN, "RIGHTGUI"},
 	{KEY_MENU, "MENU"},
 
 	{KEY_LSHIFT, "LSHIFT"},
@@ -306,7 +307,7 @@ static keyname_t keynames[] =
 	{KEY_F11, "F11"},
 	{KEY_F12, "F12"},
 
-	// KEY_CONSOLE has an exception in the keyname code
+	// I don't think that's a tilde
 	{'`', "TILDE"},
 	{KEY_PAUSE, "PAUSE/BREAK"},
 
