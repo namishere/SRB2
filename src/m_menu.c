@@ -2955,6 +2955,11 @@ static void Command_Manual_f(void)
 	itemOn = 0;
 }
 
+boolean M_TextInput(void)
+{
+	return ((currentMenu->menuitems[itemOn].status & IT_TYPE) == IT_KEYHANDLER);
+}
+
 //
 // M_Responder
 //
@@ -2984,7 +2989,12 @@ boolean M_Responder(event_t *ev)
 	}
 	else if (menuactive)
 	{
-		if (ev->type == ev_keydown)
+		if (ev->type == ev_textinput)
+		{
+			keydown++;
+			ch = ev->data1;
+		}
+		else if (ev->type == ev_keydown)
 		{
 			keydown++;
 			ch = ev->data1;
@@ -3020,7 +3030,7 @@ boolean M_Responder(event_t *ev)
 					break;
 			}
 		}
-		else if (ev->type == ev_joystick  && ev->data1 == 0 && joywait < I_GetTime())
+		else if (ev->type == ev_joystick && ev->data1 == 0 && joywait < I_GetTime())
 		{
 			const INT32 jdeadzone = JOYAXISRANGE/4;
 			if (ev->data3 != INT32_MAX)
@@ -3096,8 +3106,11 @@ boolean M_Responder(event_t *ev)
 		else if (ev->type == ev_keyup) // Preserve event for other responders
 			keydown = 0;
 	}
-	else if (ev->type == ev_keydown) // Preserve event for other responders
+	else if (ev->type == ev_keydown || ev->type == ev_textinput) // Preserve event for other responders
 		ch = ev->data1;
+
+	if (ev->type == ev_textinput)
+		goto textinputhandler;
 
 	if (ch == -1)
 		return false;
@@ -3177,14 +3190,18 @@ boolean M_Responder(event_t *ev)
 		return false;
 	}
 
+textinputhandler:
 	routine = currentMenu->menuitems[itemOn].itemaction;
 
 	// Handle menuitems which need a specific key handling
 	if (routine && (currentMenu->menuitems[itemOn].status & IT_TYPE) == IT_KEYHANDLER)
 	{
-		routine(ch);
+		routine(ch | ((ev->type == ev_textinput) ? 0x80000000 : 0)); // Of course
 		return true;
 	}
+
+	if (ev->type == ev_textinput)
+		return false;
 
 	if (currentMenu->menuitems[itemOn].status == IT_MSGHANDLER)
 	{
@@ -10753,14 +10770,18 @@ static void M_HandleSetupMultiPlayer(INT32 choice)
 			break;
 
 		default:
-			if (itemOn != 0 || choice < 32 || choice > 127)
-				break;
-			S_StartSound(NULL,sfx_menu1); // Tails
-			l = strlen(setupm_name);
-			if (l < MAXPLAYERNAME)
+			if ((choice & 0x80000000) || (choice == 32)) // ev_textinput
 			{
-				setupm_name[l] = (char)choice;
-				setupm_name[l+1] = 0;
+				choice &= ~0x80000000;
+				if (itemOn != 0 || choice < 32 || choice > 0xFF)
+					break;
+				S_StartSound(NULL,sfx_menu1); // Tails
+				l = strlen(setupm_name);
+				if (l < MAXPLAYERNAME)
+				{
+					setupm_name[l] = (char)choice;
+					setupm_name[l+1] = 0;
+				}
 			}
 			break;
 	}

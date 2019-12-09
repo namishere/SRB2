@@ -339,6 +339,9 @@ static INT32 Impl_SDL_Scancode_To_Keycode(SDL_Scancode code, Uint32 type)
 		// Lactozilla: console input
 		if (CON_AcceptInput())
 			return 0;
+		// menu text input
+		if (M_TextInput())
+			return 0;
 		// chat input
 		if (HU_ChatActive())
 			return 0;
