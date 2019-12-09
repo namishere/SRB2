@@ -265,7 +265,7 @@ static void SDLSetMode(INT32 width, INT32 height, SDL_bool fullscreen)
 	}
 }
 
-static INT32 Impl_SDL_Scancode_To_Keycode(SDL_Scancode code)
+static INT32 Impl_SDL_Scancode_To_Keycode(SDL_Scancode code, Uint32 type)
 {
 	SDL_Keycode keycode = SDL_GetKeyFromScancode(code);
 
@@ -332,12 +332,16 @@ static INT32 Impl_SDL_Scancode_To_Keycode(SDL_Scancode code)
 		return KEY_F1 + (keycode - SDLK_F1);
 	}
 
-	// Lactozilla: console input
-	if (CON_AcceptInput())
-		return 0;
-	// chat input
-	if (HU_ChatActive())
-		return 0;
+	// Do send keyup events to avoid stuck movement keys
+	if (type != SDL_KEYUP)
+	{
+		// Lactozilla: console input
+		if (CON_AcceptInput())
+			return 0;
+		// chat input
+		if (HU_ChatActive())
+			return 0;
+	}
 
 	switch (keycode)
 	{
@@ -665,7 +669,7 @@ static void Impl_HandleKeyboardEvent(SDL_KeyboardEvent evt, Uint32 type)
 	{
 		return;
 	}
-	event.data1 = Impl_SDL_Scancode_To_Keycode(evt.keysym.scancode);
+	event.data1 = Impl_SDL_Scancode_To_Keycode(evt.keysym.scancode, type);
 	if (event.data1) D_PostEvent(&event);
 }
 
