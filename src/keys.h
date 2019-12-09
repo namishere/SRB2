@@ -83,11 +83,11 @@
 #define KEY_PRTSC (0x100+45)
 
 // these ones must be non-extended scancodes (rctrl, rshift, lalt)
-#define KEY_LSHIFT (0x100+42)
-#define KEY_RSHIFT (0x100+43)
-#define KEY_LCTRL  (0x100+44)
-#define KEY_RCTRL  (0x100+45)
-#define KEY_LALT   (0x100+46)
-#define KEY_RALT   (0x100+47)
+#define KEY_LSHIFT (0x100+46)
+#define KEY_RSHIFT (0x100+47)
+#define KEY_LCTRL  (0x100+48)
+#define KEY_RCTRL  (0x100+49)
+#define KEY_LALT   (0x100+50)
+#define KEY_RALT   (0x100+51)
 
 #endif
