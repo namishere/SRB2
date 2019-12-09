@@ -1274,7 +1274,7 @@ boolean HU_Responder(event_t *ev)
 			return true;
 		}
 	}
-	else // if chat_on
+	else if (chat_on) // if chat_on
 	{
 		// Ignore modifier keys
 		// Note that we do this here so users can still set
