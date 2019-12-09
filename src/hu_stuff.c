@@ -1287,7 +1287,7 @@ boolean HU_Responder(event_t *ev)
 		c = (INT32)ev->data1;
 
 		// pasting. pasting is cool. chat is a bit limited, though :(
-		if (((c == 'v' || c == 'V') && ctrldown && ev->type == ev_textinput) && !CHAT_MUTE)
+		if (((c == 'v' || c == 'V') && ctrldown && ev->type == ev_keydown) && !CHAT_MUTE)
 		{
 			const char *paste = I_ClipboardPaste();
 			size_t chatlen;

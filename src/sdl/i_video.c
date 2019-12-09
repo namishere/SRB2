@@ -333,7 +333,7 @@ static INT32 Impl_SDL_Scancode_To_Keycode(SDL_Scancode code, Uint32 type)
 	}
 
 	// Do send keyup events to avoid stuck movement keys
-	if (type != SDL_KEYUP)
+	if (type != SDL_KEYUP && (!ctrldown))
 	{
 		// Lactozilla: console input
 		if (CON_AcceptInput())
