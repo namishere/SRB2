@@ -22,7 +22,12 @@
 //           heads up font
 //------------------------------------
 #define HU_FONTSTART '\x16' // the first font character
-#define HU_FONTEND '~'
+#define HU_FONTEND 0xFF // ÿ
+#define HU_FONTEXT 0xA1 // ¡
+
+#define HU_COLORSTART 0x80
+#define HU_COLOREND 0x8F
+#define HU_IsColorCode(char) (char >= HU_COLORSTART && char <= HU_COLOREND)
 
 #define HU_FONTSIZE (HU_FONTEND - HU_FONTSTART + 1)
 
@@ -42,9 +47,6 @@
 #define NT_FONTSIZE (NT_FONTEND - NT_FONTSTART + 1)
 
 #define HU_CROSSHAIRS 3 // maximum of 9 - see HU_Init();
-
-extern char *shiftxform; // english translation shift table
-extern char english_shiftxform[];
 
 //------------------------------------
 //        sorted player lines
@@ -77,6 +79,7 @@ void HU_AddChatText(const char *text, boolean playsound);
 
 // set true when entering a chat message
 extern boolean chat_on;
+boolean HU_ChatActive(void);
 
 extern patch_t *hu_font[HU_FONTSIZE], *tny_font[HU_FONTSIZE];
 extern patch_t *tallnum[10];

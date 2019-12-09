@@ -2246,7 +2246,7 @@ void F_EndingDrawer(void)
 		{
 			//colset(linkmap,  164, 165, 169); -- the ideal purple colour to represent a clicked in-game link, but not worth it just for a soundtest-controlled secret
 			V_DrawCenteredString(BASEVIDWIDTH/2, 8, V_ALLOWLOWERCASE|(trans<<V_ALPHASHIFT), str);
-			V_DrawCharacter(32, BASEVIDHEIGHT-16, '>'|(trans<<V_ALPHASHIFT), false);
+			V_DrawCharacter(32, BASEVIDHEIGHT-16, '>', (trans<<V_ALPHASHIFT), false);
 			V_DrawString(40, ((finalecount == STOPPINGPOINT-(20+TICRATE)) ? 1 : 0)+BASEVIDHEIGHT-16, ((timesBeaten || finalecount >= STOPPINGPOINT-TICRATE) ? V_PURPLEMAP : V_BLUEMAP)|(trans<<V_ALPHASHIFT), " [S] ===>");
 		}
 
@@ -2262,7 +2262,7 @@ void F_EndingDrawer(void)
 			else
 				trans2 += 2*trans;
 			if (trans2 < 10)
-				V_DrawCharacter(26, BASEVIDHEIGHT-33, '\x1C'|(trans2<<V_ALPHASHIFT), false);
+				V_DrawCharacter(26, BASEVIDHEIGHT-33, '\x1C', (trans2<<V_ALPHASHIFT), false);
 		}
 	}
 }

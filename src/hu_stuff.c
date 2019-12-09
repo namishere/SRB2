@@ -114,53 +114,6 @@ static void HU_DrawRankings(void);
 static void HU_DrawCoopOverlay(void);
 static void HU_DrawNetplayCoopOverlay(void);
 
-//======================================================================
-//                 KEYBOARD LAYOUTS FOR ENTERING TEXT
-//======================================================================
-
-char *shiftxform;
-
-char english_shiftxform[] =
-{
-	0,
-	1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
-	11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
-	21, 22, 23, 24, 25, 26, 27, 28, 29, 30,
-	31,
-	' ', '!', '"', '#', '$', '%', '&',
-	'"', // shift-'
-	'(', ')', '*', '+',
-	'<', // shift-,
-	'_', // shift--
-	'>', // shift-.
-	'?', // shift-/
-	')', // shift-0
-	'!', // shift-1
-	'@', // shift-2
-	'#', // shift-3
-	'$', // shift-4
-	'%', // shift-5
-	'^', // shift-6
-	'&', // shift-7
-	'*', // shift-8
-	'(', // shift-9
-	':',
-	':', // shift-;
-	'<',
-	'+', // shift-=
-	'>', '?', '@',
-	'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N',
-	'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
-	'{', // shift-[
-	'|', // shift-backslash - OH MY GOD DOES WATCOM SUCK
-	'}', // shift-]
-	'"', '_',
-	'~', // shift-`
-	'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N',
-	'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
-	'{', '|', '}', '~', 127
-};
-
 static char cechotext[1024];
 static tic_t cechotimer = 0;
 static tic_t cechoduration = 5*TICRATE;
@@ -192,6 +145,9 @@ void HU_LoadGraphics(void)
 	{
 		// cache the heads-up font for entire game execution
 		sprintf(buffer, "STCFN%.3d", j);
+		if (j > 127)
+			sprintf(buffer, "UN%06X", j+64);
+
 		if (W_CheckNumForName(buffer) == LUMPERROR)
 			hu_font[i] = NULL;
 		else
@@ -328,9 +284,6 @@ void HU_Init(void)
 	COM_AddCommand("csay", Command_CSay_f);
 	RegisterNetXCmd(XD_SAY, Got_Saycmd);
 #endif
-
-	// set shift translation table
-	shiftxform = english_shiftxform;
 
 	HU_LoadGraphics();
 }
@@ -669,13 +622,13 @@ static void Got_Saycmd(UINT8 **p, INT32 playernum)
 		return;
 	}
 
-	//check for invalid characters (0x80 or above)
+	//check for invalid characters (color codes)
 	{
 		size_t i;
 		const size_t j = strlen(msg);
 		for (i = 0; i < j; i++)
 		{
-			if (msg[i] & 0x80)
+			if (HU_IsColorCode(msg[i]))
 			{
 				CONS_Alert(CONS_WARNING, M_GetText("Illegal say command received from %s containing invalid characters\n"), player_names[playernum]);
 				if (server)
@@ -948,7 +901,7 @@ static void Got_Saycmd(UINT8 **p, INT32 playernum)
 
 // Handles key input and string input
 //
-static inline boolean HU_keyInChatString(char *s, char ch)
+static inline boolean HU_keyInChatString(char *s, UINT8 ch)
 {
 	size_t l;
 
@@ -1182,6 +1135,11 @@ static INT16 typelines = 1; // number of drawfill lines we need when drawing the
 // It's up here since it has to be reset when we open the chat.
 #endif
 
+boolean HU_ChatActive(void)
+{
+	return chat_on;
+}
+
 //
 // Returns true if key eaten
 //
@@ -1191,7 +1149,7 @@ boolean HU_Responder(event_t *ev)
 	INT32 c=0;
 #endif
 
-	if (ev->type != ev_keydown)
+	if (!(ev->type == ev_keydown || ev->type == ev_textinput))
 		return false;
 
 	// only KeyDown events now...
@@ -1219,7 +1177,7 @@ boolean HU_Responder(event_t *ev)
 #ifndef NONET
 	c = (INT32)ev->data1;
 
-	if (!chat_on)
+	if (!chat_on && ev->type == ev_keydown)
 	{
 		// enter chat mode
 		if ((ev->data1 == gamecontrol[gc_talkkey][0] || ev->data1 == gamecontrol[gc_talkkey][1])
@@ -1245,29 +1203,16 @@ boolean HU_Responder(event_t *ev)
 	}
 	else // if chat_on
 	{
-
 		// Ignore modifier keys
 		// Note that we do this here so users can still set
 		// their chat keys to one of these, if they so desire.
 		if (ev->data1 == KEY_LSHIFT || ev->data1 == KEY_RSHIFT
 		 || ev->data1 == KEY_LCTRL || ev->data1 == KEY_RCTRL
-		 || ev->data1 == KEY_LALT || ev->data1 == KEY_RALT)
+		 || ev->data1 == KEY_LALT || ev->data1 == KEY_RALT
+		 || ev->data1 == KEY_CAPSLOCK)
 			return true;
 
 		c = (INT32)ev->data1;
-
-		// I know this looks very messy but this works. If it ain't broke, don't fix it!
-		// shift LETTERS to uppercase if we have capslock or are holding shift
-		if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z'))
-		{
-			if (shiftdown ^ capslock)
-				c = shiftxform[c];
-		}
-		else	// if we're holding shift we should still shift non letter symbols
-		{
-			if (shiftdown)
-				c = shiftxform[c];
-		}
 
 		// pasting. pasting is cool. chat is a bit limited, though :(
 		if (((c == 'v' || c == 'V') && ctrldown) && !CHAT_MUTE)
@@ -1277,7 +1222,6 @@ boolean HU_Responder(event_t *ev)
 			size_t pastelen;
 
 			// create a dummy string real quickly
-
 			if (paste == NULL)
 				return true;
 
@@ -1314,7 +1258,7 @@ boolean HU_Responder(event_t *ev)
 			}
 		}
 
-		if (!CHAT_MUTE && HU_keyInChatString(w_chat,c))
+		if (!CHAT_MUTE && HU_keyInChatString(w_chat,c) && ev->type == ev_textinput)
 		{
 			HU_queueChatChar(c);
 		}
@@ -1380,7 +1324,7 @@ static char *CHAT_WordWrap(INT32 x, INT32 w, INT32 option, const char *string)
 	for (i = 0; i < slen; ++i)
 	{
 		c = newstring[i];
-		if ((UINT8)c >= 0x80 && (UINT8)c <= 0x89) //color parsing! -Inuyasha 2.16.09
+		if (HU_IsColorCode((UINT8)c))
 			continue;
 
 		if (c == '\n')
@@ -1543,7 +1487,7 @@ static void HU_drawMiniChat(void)
 				if (cv_chatbacktint.value) // on request of wolfy
 					V_DrawFillConsoleMap(x + dx + 2, y+dy, charwidth, charheight, 239|V_SNAPTOBOTTOM|V_SNAPTOLEFT);
 
-				V_DrawChatCharacter(x + dx + 2, y+dy, msg[j++] |V_SNAPTOBOTTOM|V_SNAPTOLEFT|transflag, !cv_allcaps.value, colormap);
+				V_DrawChatCharacter(x + dx + 2, y+dy, msg[j++], V_SNAPTOBOTTOM|V_SNAPTOLEFT|transflag, !cv_allcaps.value, colormap);
 			}
 
 			dx += charwidth;
@@ -1633,7 +1577,7 @@ static void HU_drawChatLog(INT32 offset)
 			else
 			{
 				if ((y+dy+2 >= chat_topy) && (y+dy < (chat_bottomy)))
-					V_DrawChatCharacter(x + dx + 2, y+dy+2, msg[j++] |V_SNAPTOBOTTOM|V_SNAPTOLEFT, !cv_allcaps.value, colormap);
+					V_DrawChatCharacter(x + dx + 2, y+dy+2, msg[j++], V_SNAPTOBOTTOM|V_SNAPTOLEFT, !cv_allcaps.value, colormap);
 				else
 					j++; // don't forget to increment this or we'll get stuck in the limbo.
 			}
@@ -1733,7 +1677,7 @@ static void HU_DrawChat(void)
 			++i;
 		else
 		{
-			V_DrawChatCharacter(chatx + c + 2, y, talk[i] |V_SNAPTOBOTTOM|V_SNAPTOLEFT|cflag, !cv_allcaps.value, V_GetStringColormap(talk[i]|cflag));
+			V_DrawChatCharacter(chatx + c + 2, y, talk[i], V_SNAPTOBOTTOM|V_SNAPTOLEFT|cflag, !cv_allcaps.value, V_GetStringColormap(talk[i]|cflag));
 			i++;
 		}
 
@@ -1751,7 +1695,7 @@ static void HU_DrawChat(void)
 	typelines = 1;
 
 	if ((strlen(w_chat) == 0 || c_input == 0) && hu_tick < 4)
-		V_DrawChatCharacter(chatx + 2 + c, y+1, '_' |V_SNAPTOBOTTOM|V_SNAPTOLEFT|t, !cv_allcaps.value, NULL);
+		V_DrawChatCharacter(chatx + 2 + c, y+1, '_', V_SNAPTOBOTTOM|V_SNAPTOLEFT|t, !cv_allcaps.value, NULL);
 
 	while (w_chat[i])
 	{
@@ -1761,7 +1705,7 @@ static void HU_DrawChat(void)
 			INT32 cursorx = (c+charwidth < boxw-charwidth) ? (chatx + 2 + c+charwidth) : (chatx+1); // we may have to go down.
 			INT32 cursory = (cursorx != chatx+1) ? (y) : (y+charheight);
 			if (hu_tick < 4)
-				V_DrawChatCharacter(cursorx, cursory+1, '_' |V_SNAPTOBOTTOM|V_SNAPTOLEFT|t, !cv_allcaps.value, NULL);
+				V_DrawChatCharacter(cursorx, cursory+1, '_', V_SNAPTOBOTTOM|V_SNAPTOLEFT|t, !cv_allcaps.value, NULL);
 
 			if (cursorx == chatx+1 && saylen == i) // a weirdo hack
 			{
@@ -1774,7 +1718,7 @@ static void HU_DrawChat(void)
 		if (w_chat[i] < HU_FONTSTART)
 			++i;
 		else
-			V_DrawChatCharacter(chatx + c + 2, y, w_chat[i++] | V_SNAPTOBOTTOM|V_SNAPTOLEFT | t, !cv_allcaps.value, NULL);
+			V_DrawChatCharacter(chatx + c + 2, y, w_chat[i++], V_SNAPTOBOTTOM|V_SNAPTOLEFT | t, !cv_allcaps.value, NULL);
 
 		c += charwidth;
 		if (c > boxw-(charwidth*2) && !skippedline)
@@ -1898,13 +1842,13 @@ static void HU_DrawChat_Old(void)
 		else
 		{
 			//charwidth = SHORT(hu_font[talk[i]-HU_FONTSTART]->width) * con_scalefactor;
-			V_DrawCharacter(HU_INPUTX + c, y, talk[i++] | cv_constextsize.value | V_NOSCALESTART, true);
+			V_DrawCharacter(HU_INPUTX + c, y, talk[i++], cv_constextsize.value | V_NOSCALESTART, true);
 		}
 		c += charwidth;
 	}
 
 	if ((strlen(w_chat) == 0 || c_input == 0) && hu_tick < 4)
-		V_DrawCharacter(HU_INPUTX+c, y+2*con_scalefactor, '_' |cv_constextsize.value | V_NOSCALESTART|t, !cv_allcaps.value);
+		V_DrawCharacter(HU_INPUTX+c, y+2*con_scalefactor, '_', cv_constextsize.value | V_NOSCALESTART|t, !cv_allcaps.value);
 
 	i = 0;
 	while (w_chat[i])
@@ -1914,7 +1858,7 @@ static void HU_DrawChat_Old(void)
 		{
 			INT32 cursorx = (HU_INPUTX+c+charwidth < vid.width) ? (HU_INPUTX + c + charwidth) : (HU_INPUTX); // we may have to go down.
 			INT32 cursory = (cursorx != HU_INPUTX) ? (y) : (y+charheight);
-			V_DrawCharacter(cursorx, cursory+2*con_scalefactor, '_' |cv_constextsize.value | V_NOSCALESTART|t, !cv_allcaps.value);
+			V_DrawCharacter(cursorx, cursory+2*con_scalefactor, '_', cv_constextsize.value | V_NOSCALESTART|t, !cv_allcaps.value);
 		}
 
 		//Hurdler: isn't it better like that?
@@ -1926,7 +1870,7 @@ static void HU_DrawChat_Old(void)
 		else
 		{
 			//charwidth = SHORT(hu_font[w_chat[i]-HU_FONTSTART]->width) * con_scalefactor;
-			V_DrawCharacter(HU_INPUTX + c, y, w_chat[i++] | cv_constextsize.value | V_NOSCALESTART | t, true);
+			V_DrawCharacter(HU_INPUTX + c, y, w_chat[i++], cv_constextsize.value | V_NOSCALESTART | t, true);
 		}
 
 		c += charwidth;
@@ -1938,7 +1882,7 @@ static void HU_DrawChat_Old(void)
 	}
 
 	if (hu_tick < 4)
-		V_DrawCharacter(HU_INPUTX + c, y, '_' | cv_constextsize.value |V_NOSCALESTART|t, true);
+		V_DrawCharacter(HU_INPUTX + c, y, '_', cv_constextsize.value |V_NOSCALESTART|t, true);
 }
 #endif
 

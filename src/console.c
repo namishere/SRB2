@@ -139,7 +139,7 @@ static CV_PossibleValue_t backcolor_cons_t[] = {{0, "White"}, 		{1, "Black"},		{
 
 consvar_t cons_backcolor = {"con_backcolor", "Green", CV_CALL|CV_SAVE, backcolor_cons_t, CONS_backcolor_Change, 0, NULL, NULL, 0, 0, NULL};
 
-static void CON_Print(char *msg);
+static void CON_Print(UINT8 *msg);
 
 //
 //
@@ -172,14 +172,6 @@ static void CONS_Clear_f(void)
 	con_line = &con_buffer[con_cy*con_width];
 	con_scrollup = 0;
 }
-
-// Choose english keymap
-//
-/*static void CONS_English_f(void)
-{
-	shiftxform = english_shiftxform;
-	CONS_Printf(M_GetText("%s keymap.\n"), M_GetText("English"));
-}*/
 
 static char *bindtable[NUMINPUTS];
 
@@ -518,7 +510,7 @@ static void CON_RecalcSize(void)
 					conw--;
 				string[conw+1] = '\n';
 				string[conw+2] = '\0';
-				CON_Print(string);
+				CON_Print((UINT8 *)string);
 			}
 		}
 	}
@@ -743,6 +735,11 @@ static void CON_InputDelChar(void)
 // ----
 //
 
+boolean CON_AcceptInput(void)
+{
+	return consoleready;
+}
+
 // Handles console key input
 //
 boolean CON_Responder(event_t *ev)
@@ -760,7 +757,7 @@ boolean CON_Responder(event_t *ev)
 		return false;
 
 	// let go keyup events, don't eat them
-	if (ev->type != ev_keydown && ev->type != ev_console)
+	if (ev->type != ev_keydown && ev->type != ev_textinput && ev->type != ev_console)
 	{
 		if (ev->data1 == gamecontrol[gc_console][0] || ev->data1 == gamecontrol[gc_console][1])
 			consdown = false;
@@ -1074,34 +1071,14 @@ boolean CON_Responder(event_t *ev)
 		return true;
 	}
 
-	// allow people to use keypad in console (good for typing IP addresses) - Calum
-	if (key >= KEY_KEYPAD7 && key <= KEY_KPADDEL)
-	{
-		char keypad_translation[] = {'7','8','9','-',
-		                             '4','5','6','+',
-		                             '1','2','3',
-		                             '0','.'};
-
-		key = keypad_translation[key - KEY_KEYPAD7];
-	}
-	else if (key == KEY_KPADSLASH)
-		key = '/';
-
-	if (key >= 'a' && key <= 'z')
-	{
-		if (capslock ^ shiftdown)
-			key = shiftxform[key];
-	}
-	else if (shiftdown)
-		key = shiftxform[key];
-
-	// enter a char into the command prompt
-	if (key < 32 || key > 127)
+	// Lactozilla: Ignore caps lock key
+	// or else it turns into a printable character
+	if (ev->type != ev_textinput && key == KEY_CAPSLOCK)
 		return true;
 
-	// add key to cmd line here
-	if (key >= 'A' && key <= 'Z' && !(shiftdown ^ capslock)) //this is only really necessary for dedicated servers
-		key = key + 'a' - 'A';
+	// enter a char into the command prompt
+	if (key < 32 || key > 191)
+		return true;
 
 	if (input_sel != input_cur)
 		CON_InputDelSelection();
@@ -1128,7 +1105,7 @@ static void CON_Linefeed(void)
 }
 
 // Outputs text into the console text buffer
-static void CON_Print(char *msg)
+static void CON_Print(UINT8 *msg)
 {
 	size_t l;
 	INT32 controlchars = 0; // for color changing
@@ -1145,7 +1122,7 @@ static void CON_Print(char *msg)
 		S_StartSound(NULL, sfx_radio);
 	}
 
-	if (!(*msg & 0x80))
+	if (!(HU_IsColorCode(*msg)))
 	{
 		con_line[con_cx++] = '\x80';
 		controlchars = 1;
@@ -1156,7 +1133,7 @@ static void CON_Print(char *msg)
 		// skip non-printable characters and white spaces
 		while (*msg && *msg <= ' ')
 		{
-			if (*msg & 0x80)
+			if (HU_IsColorCode(*msg))
 			{
 				color = con_line[con_cx++] = *(msg++);
 				controlchars++;
@@ -1275,7 +1252,7 @@ void CONS_Printf(const char *fmt, ...)
 	}
 	else
 		// write message in con text buffer
-		CON_Print(txt);
+		CON_Print((UINT8 *)txt);
 
 #ifndef PC_DOS
 	CON_LogMessage(txt);
@@ -1385,7 +1362,7 @@ void CONS_Error(const char *msg)
 static void CON_DrawInput(void)
 {
 	INT32 charwidth = (INT32)con_scalefactor << 3;
-	const char *p = inputlines[inputline];
+	const UINT8 *p = (UINT8 *)inputlines[inputline];
 	size_t c, clen, cend;
 	UINT8 lellip = 0, rellip = 0;
 	INT32 x, y, i;
@@ -1440,32 +1417,32 @@ static void CON_DrawInput(void)
 		if (input_sel < c)
 			V_DrawFill(x, y, charwidth*3, (10 * con_scalefactor), 77 | V_NOSCALESTART);
 		for (i = 0; i < 3; ++i, x += charwidth)
-			V_DrawCharacter(x, y, '.' | cv_constextsize.value | V_GRAYMAP | V_NOSCALESTART, true);
+			V_DrawCharacter(x, y, '.', cv_constextsize.value | V_GRAYMAP | V_NOSCALESTART, true);
 	}
 	else
-		V_DrawCharacter(x-charwidth, y, CON_PROMPTCHAR | cv_constextsize.value | V_GRAYMAP | V_NOSCALESTART, true);
+		V_DrawCharacter(x-charwidth, y, CON_PROMPTCHAR, cv_constextsize.value | V_GRAYMAP | V_NOSCALESTART, true);
 
 	for (cend = c + clen; c < cend; ++c, x += charwidth)
 	{
 		if ((input_sel > c && input_cur <= c) || (input_sel <= c && input_cur > c))
 		{
 			V_DrawFill(x, y, charwidth, (10 * con_scalefactor), 77 | V_NOSCALESTART);
-			V_DrawCharacter(x, y, p[c] | cv_constextsize.value | V_YELLOWMAP | V_NOSCALESTART, true);
+			V_DrawCharacter(x, y, p[c], cv_constextsize.value | V_YELLOWMAP | V_NOSCALESTART, true);
 		}
 		else
-			V_DrawCharacter(x, y, p[c] | cv_constextsize.value | V_NOSCALESTART, true);
+			V_DrawCharacter(x, y, p[c], cv_constextsize.value | V_NOSCALESTART, true);
 
 		if (c == input_cur && con_tick >= 4)
-			V_DrawCharacter(x, y + (con_scalefactor*2), '_' | cv_constextsize.value | V_NOSCALESTART, true);
+			V_DrawCharacter(x, y + (con_scalefactor*2), '_', cv_constextsize.value | V_NOSCALESTART, true);
 	}
 	if (cend == input_cur && con_tick >= 4)
-		V_DrawCharacter(x, y + (con_scalefactor*2), '_' | cv_constextsize.value | V_NOSCALESTART, true);
+		V_DrawCharacter(x, y + (con_scalefactor*2), '_', cv_constextsize.value | V_NOSCALESTART, true);
 	if (rellip)
 	{
 		if (input_sel > cend)
 			V_DrawFill(x, y, charwidth*3, (10 * con_scalefactor), 77 | V_NOSCALESTART);
 		for (i = 0; i < 3; ++i, x += charwidth)
-			V_DrawCharacter(x, y, '.' | cv_constextsize.value | V_GRAYMAP | V_NOSCALESTART, true);
+			V_DrawCharacter(x, y, '.', cv_constextsize.value | V_GRAYMAP | V_NOSCALESTART, true);
 	}
 }
 
@@ -1501,7 +1478,7 @@ static void CON_DrawHudlines(void)
 
 		for (c = 0, x = 0; c < con_width; c++, x += charwidth, p++)
 		{
-			while (*p & 0x80) // Graue 06-19-2004
+			while (HU_IsColorCode(*p)) // Graue 06-19-2004
 			{
 				charflags = (*p & 0x7f) << V_CHARCOLORSHIFT;
 				p++;
@@ -1511,11 +1488,11 @@ static void CON_DrawHudlines(void)
 			else
 			{
 				//charwidth = SHORT(hu_font['A'-HU_FONTSTART]->width) * con_scalefactor;
-				V_DrawCharacter(x, y, (INT32)(*p) | charflags | cv_constextsize.value | V_NOSCALESTART, true);
+				V_DrawCharacter(x, y, (INT32)(*p), charflags | cv_constextsize.value | V_NOSCALESTART, true);
 			}
 		}
 
-		//V_DrawCharacter(x, y, (p[c]&0xff) | cv_constextsize.value | V_NOSCALESTART, true);
+		//V_DrawCharacter(x, y, (p[c]&0xff), cv_constextsize.value | V_NOSCALESTART, true);
 		y += charheight;
 	}
 
@@ -1581,12 +1558,12 @@ static void CON_DrawConsole(void)
 
 		for (c = 0, x = charwidth; c < con_width; c++, x += charwidth, p++)
 		{
-			while (*p & 0x80)
+			while (HU_IsColorCode(*p))
 			{
 				charflags = (*p & 0x7f) << V_CHARCOLORSHIFT;
 				p++;
 			}
-			V_DrawCharacter(x, y, (INT32)(*p) | charflags | cv_constextsize.value | V_NOSCALESTART, true);
+			V_DrawCharacter(x, y, (INT32)(*p), charflags | cv_constextsize.value | V_NOSCALESTART, true);
 		}
 	}
 

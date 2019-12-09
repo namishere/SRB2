@@ -1306,7 +1306,7 @@ static void SV_SendServerInfo(INT32 node, tic_t servertime)
 		char *read = mapheaderinfo[gamemap-1]->lvlttl, *writ = netbuffer->u.serverinfo.maptitle;
 		while (writ < (netbuffer->u.serverinfo.maptitle+32) && *read != '\0')
 		{
-			if (!(*read & 0x80))
+			if (!(HU_IsColorCode(*read)))
 			{
 				*writ = toupper(*read);
 				writ++;

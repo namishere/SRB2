@@ -2000,17 +2000,23 @@ UINT8 *V_GetStringColormap(INT32 colorflags)
 
 // Writes a single character (draw WHITE if bit 7 set)
 //
-void V_DrawCharacter(INT32 x, INT32 y, INT32 c, boolean lowercaseallowed)
+void V_DrawCharacter(INT32 x, INT32 y, INT32 c, INT32 eflags, boolean lowercaseallowed)
 {
 	INT32 w, flags;
-	const UINT8 *colormap = V_GetStringColormap(c);
+	const UINT8 *colormap = V_GetStringColormap(eflags);
 
-	flags = c & ~(V_CHARCOLORMASK | V_PARAMMASK);
-	c &= 0x7f;
-	if (lowercaseallowed)
-		c -= HU_FONTSTART;
+	flags = eflags & ~(V_CHARCOLORMASK | V_PARAMMASK);
+	if (c < HU_FONTEXT)
+	{
+		c &= 0x7f;
+		if (lowercaseallowed)
+			c -= HU_FONTSTART;
+		else
+			c = toupper(c) - HU_FONTSTART;
+	}
 	else
-		c = toupper(c) - HU_FONTSTART;
+		c -= HU_FONTSTART;
+
 	if (c < 0 || c >= HU_FONTSIZE || !hu_font[c])
 		return;
 
@@ -2027,17 +2033,23 @@ void V_DrawCharacter(INT32 x, INT32 y, INT32 c, boolean lowercaseallowed)
 // Writes a single character for the chat. (draw WHITE if bit 7 set)
 // Essentially the same as the above but it's small or big depending on what resolution you've chosen to huge..
 //
-void V_DrawChatCharacter(INT32 x, INT32 y, INT32 c, boolean lowercaseallowed, UINT8 *colormap)
+void V_DrawChatCharacter(INT32 x, INT32 y, INT32 c, INT32 eflags, boolean lowercaseallowed, UINT8 *colormap)
 {
 	INT32 w, flags;
-	//const UINT8 *colormap = V_GetStringColormap(c);
+	//const UINT8 *colormap = V_GetStringColormap(eflags);
 
-	flags = c & ~(V_CHARCOLORMASK | V_PARAMMASK);
-	c &= 0x7f;
-	if (lowercaseallowed)
-		c -= HU_FONTSTART;
+	flags = eflags & ~(V_CHARCOLORMASK | V_PARAMMASK);
+	if (c < HU_FONTEXT)
+	{
+		c &= 0x7f;
+		if (lowercaseallowed)
+			c -= HU_FONTSTART;
+		else
+			c = toupper(c) - HU_FONTSTART;
+	}
 	else
-		c = toupper(c) - HU_FONTSTART;
+		c -= HU_FONTSTART;
+
 	if (c < 0 || c >= HU_FONTSIZE || !hu_font[c])
 		return;
 
@@ -2046,8 +2058,6 @@ void V_DrawChatCharacter(INT32 x, INT32 y, INT32 c, boolean lowercaseallowed, UI
 		return;
 
 	V_DrawFixedPatch(x*FRACUNIT, y*FRACUNIT, (vid.width < 640) ? (FRACUNIT) : (FRACUNIT/2), flags, hu_font[c], colormap);
-
-
 }
 
 // Precompile a wordwrapped string to any given width.

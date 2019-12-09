@@ -2876,9 +2876,6 @@ static boolean M_ChangeStringCvar(INT32 choice)
 	char buf[MAXSTRINGLENGTH];
 	size_t len;
 
-	if (shiftdown && choice >= 32 && choice <= 127)
-		choice = shiftxform[choice];
-
 	switch (choice)
 	{
 		case KEY_BACKSPACE:
@@ -3185,8 +3182,6 @@ boolean M_Responder(event_t *ev)
 	// Handle menuitems which need a specific key handling
 	if (routine && (currentMenu->menuitems[itemOn].status & IT_TYPE) == IT_KEYHANDLER)
 	{
-		if (shiftdown && ch >= 32 && ch <= 127)
-			ch = shiftxform[ch];
 		routine(ch);
 		return true;
 	}
@@ -3781,9 +3776,9 @@ static void M_DrawSlider(INT32 x, INT32 y, const consvar_t *cv, boolean ontop)
 	if (ontop)
 	{
 		V_DrawCharacter(x - 6 - (skullAnimCounter/5), y,
-			'\x1C' | V_YELLOWMAP, false);
+			'\x1C', V_YELLOWMAP, false);
 		V_DrawCharacter(x+i*8 + 8 + (skullAnimCounter/5), y,
-			'\x1D' | V_YELLOWMAP, false);
+			'\x1D', V_YELLOWMAP, false);
 	}
 
 	p = W_CachePatchName("M_SLIDER", PU_CACHE);
@@ -4080,7 +4075,7 @@ static void M_DrawGenericMenu(void)
 								V_DrawString(x + 8, y + 12, V_ALLOWLOWERCASE, cv->string);
 								if (skullAnimCounter < 4 && i == itemOn)
 									V_DrawCharacter(x + 8 + V_StringWidth(cv->string, 0), y + 12,
-										'_' | 0x80, false);
+										'_', 0x80, false);
 								y += 16;
 								break;
 							default:
@@ -4089,9 +4084,9 @@ static void M_DrawGenericMenu(void)
 								if (i == itemOn)
 								{
 									V_DrawCharacter(BASEVIDWIDTH - x - 10 - V_StringWidth(cv->string, 0) - (skullAnimCounter/5), y,
-											'\x1C' | V_YELLOWMAP, false);
+											'\x1C', V_YELLOWMAP, false);
 									V_DrawCharacter(BASEVIDWIDTH - x + 2 + (skullAnimCounter/5), y,
-											'\x1D' | V_YELLOWMAP, false);
+											'\x1D', V_YELLOWMAP, false);
 								}
 								break;
 						}
@@ -4241,14 +4236,14 @@ static void M_DrawGenericScrollMenu(void)
 								V_DrawString(x + 8, y + 12, V_ALLOWLOWERCASE, cv->string);
 								if (skullAnimCounter < 4 && i == itemOn)
 									V_DrawCharacter(x + 8 + V_StringWidth(cv->string, 0), y + 12,
-										'_' | 0x80, false);
+										'_', 0x80, false);
 #else // cool new string type stuff, not ready for limelight
 								if (i == itemOn)
 								{
 									V_DrawFill(x-2, y-1, MAXSTRINGLENGTH*8 + 4, 8+3, 159);
 									V_DrawString(x, y, V_ALLOWLOWERCASE, cv->string);
 									if (skullAnimCounter < 4)
-										V_DrawCharacter(x + V_StringWidth(cv->string, 0), y, '_' | 0x80, false);
+										V_DrawCharacter(x + V_StringWidth(cv->string, 0), y, '_', 0x80, false);
 								}
 								else
 									V_DrawRightAlignedString(BASEVIDWIDTH - x, y,
@@ -4261,9 +4256,9 @@ static void M_DrawGenericScrollMenu(void)
 								if (i == itemOn)
 								{
 									V_DrawCharacter(BASEVIDWIDTH - x - 10 - V_StringWidth(cv->string, 0) - (skullAnimCounter/5), y,
-											'\x1C' | V_YELLOWMAP, false);
+											'\x1C', V_YELLOWMAP, false);
 									V_DrawCharacter(BASEVIDWIDTH - x + 2 + (skullAnimCounter/5), y,
-											'\x1D' | V_YELLOWMAP, false);
+											'\x1D', V_YELLOWMAP, false);
 								}
 								break;
 						}
@@ -4501,7 +4496,7 @@ static void M_DrawCenteredMenu(void)
 								V_DrawString(x + 8, y + 12, V_ALLOWLOWERCASE, cv->string);
 								if (skullAnimCounter < 4 && i == itemOn)
 									V_DrawCharacter(x + 8 + V_StringWidth(cv->string, 0), y + 12,
-										'_' | 0x80, false);
+										'_', 0x80, false);
 								y += 16;
 								break;
 							default:
@@ -4510,9 +4505,9 @@ static void M_DrawCenteredMenu(void)
 								if (i == itemOn)
 								{
 									V_DrawCharacter(BASEVIDWIDTH - x - 10 - V_StringWidth(cv->string, 0) - (skullAnimCounter/5), y,
-											'\x1C' | V_YELLOWMAP, false);
+											'\x1C', V_YELLOWMAP, false);
 									V_DrawCharacter(BASEVIDWIDTH - x + 2 + (skullAnimCounter/5), y,
-											'\x1D' | V_YELLOWMAP, false);
+											'\x1D', V_YELLOWMAP, false);
 								}
 								break;
 						}
@@ -5263,9 +5258,9 @@ static void M_DrawLevelPlatterRow(UINT8 row, INT32 y)
 		if (!lsrow)
 		{
 			V_DrawCharacter(lsbasex - 10 - (skullAnimCounter/5), y+25,
-				'\x1C' | V_YELLOWMAP, false);
+				'\x1C', V_YELLOWMAP, false);
 			V_DrawCharacter(lsbasex+282 + 2 + (skullAnimCounter/5), y+25,
-				'\x1D' | V_YELLOWMAP, false);
+				'\x1D', V_YELLOWMAP, false);
 		}
 	}
 	else if (lswide(row))
@@ -6163,7 +6158,7 @@ static void M_DrawAddons(void)
 		V_DrawString(x - 18, y + 8, V_ALLOWLOWERCASE|V_TRANSLUCENT, "Type to search...");
 	if (skullAnimCounter < 4)
 		V_DrawCharacter(x - 18 + V_StringWidth(menusearch+1, 0), y + 8,
-			'_' | 0x80, false);
+			'_', 0x80, false);
 
 	// draw search icon
 	x -= (21 + 5 + 16);
@@ -6189,9 +6184,6 @@ static void M_AddonExec(INT32 ch)
 #define len menusearch[0]
 static boolean M_ChangeStringAddons(INT32 choice)
 {
-	if (shiftdown && choice >= 32 && choice <= 127)
-		choice = shiftxform[choice];
-
 	switch (choice)
 	{
 		case KEY_DEL:
@@ -7015,9 +7007,9 @@ static void M_DrawEmblemHints(void)
 	if (i == itemOn)
 	{
 		V_DrawCharacter(BASEVIDWIDTH - currentMenu->x - 10 - V_StringWidth(cv_soundtest.string, 0) - (skullAnimCounter/5), currentMenu->y + y,
-			'\x1C' | V_YELLOWMAP, false);
+			'\x1C', V_YELLOWMAP, false);
 		V_DrawCharacter(BASEVIDWIDTH - currentMenu->x + 2 + (skullAnimCounter/5), currentMenu->y + y,
-			'\x1D' | V_YELLOWMAP, false);
+			'\x1D', V_YELLOWMAP, false);
 	}
 	if (cv_soundtest.value)
 		V_DrawRightAlignedString(BASEVIDWIDTH - currentMenu->x, currentMenu->y + y + 8, V_YELLOWMAP, S_sfx[cv_soundtest.value].name);
@@ -7256,9 +7248,9 @@ static void M_DrawSoundTest(void)
 				if (t == st_sel)
 				{
 					V_DrawCharacter(x - 10 - (skullAnimCounter/5), y,
-						'\x1C' | V_YELLOWMAP, false);
+						'\x1C', V_YELLOWMAP, false);
 					V_DrawCharacter(x + 2 + V_StringWidth(sfxstr, 0) + (skullAnimCounter/5), y,
-						'\x1D' | V_YELLOWMAP, false);
+						'\x1D', V_YELLOWMAP, false);
 				}
 
 				if (curplaying == soundtestdefs[t])
@@ -7275,7 +7267,7 @@ static void M_DrawSoundTest(void)
 				if (curplaying == soundtestdefs[t])
 				{
 					V_DrawFill(165+140-9, y-4, 8, 16, 150);
-					//V_DrawCharacter(165+140-8, y, '\x19' | V_YELLOWMAP, false);
+					//V_DrawCharacter(165+140-8, y, '\x19', V_YELLOWMAP, false);
 					V_DrawFixedPatch((165+140-9)<<FRACBITS, (y<<FRACBITS)-(bounce*4), FRACUNIT, 0, hu_font['\x19'-HU_FONTSTART], V_GetStringColormap(V_YELLOWMAP));
 				}
 			}
@@ -7886,7 +7878,7 @@ skiplife:
 			V_DrawScaledPatch(tempx + 9, y + 2, 0, patch);
 			tempx += 16;
 			if (savegameinfo[savetodraw].lives == INFLIVES)
-				V_DrawCharacter(tempx, y + 1, '\x16', false);
+				V_DrawCharacter(tempx, y + 1, '\x16', 0, false);
 			else
 				V_DrawString(tempx, y, 0, va("%d", savegameinfo[savetodraw].lives));
 
@@ -9099,9 +9091,9 @@ void M_DrawTimeAttackMenu(void)
 			if (i == itemOn)
 			{
 				V_DrawCharacter(BASEVIDWIDTH - x - soffset - 10 - V_StringWidth(cv->string, 0) - (skullAnimCounter/5), y,
-					'\x1C' | V_YELLOWMAP, false);
+					'\x1C', V_YELLOWMAP, false);
 				V_DrawCharacter(BASEVIDWIDTH - x - soffset + 2 + (skullAnimCounter/5), y,
-					'\x1D' | V_YELLOWMAP, false);
+					'\x1D', V_YELLOWMAP, false);
 			}
 		}
 	}
@@ -9162,9 +9154,9 @@ void M_DrawTimeAttackMenu(void)
 				/* Draw arrows !! */
 				y = y + 25 - 4;
 				V_DrawCharacter(216 - 10 - (skullAnimCounter/5), y,
-						'\x1C' | V_YELLOWMAP, false);
+						'\x1C', V_YELLOWMAP, false);
 				V_DrawCharacter(216 + 80 + 2 + (skullAnimCounter/5), y,
-						'\x1D' | V_YELLOWMAP, false);
+						'\x1D', V_YELLOWMAP, false);
 			}
 			// Draw press ESC to exit string on main record attack menu
 			V_DrawString(104-72, 180, V_TRANSLUCENT, M_GetText("Press ESC to exit"));
@@ -9375,9 +9367,9 @@ void M_DrawNightsAttackMenu(void)
 			if (i == itemOn)
 			{
 				V_DrawCharacter(BASEVIDWIDTH - x - soffset - 10 - V_StringWidth(cv->string, 0) - (skullAnimCounter/5), y,
-					'\x1C' | V_YELLOWMAP, false);
+					'\x1C', V_YELLOWMAP, false);
 				V_DrawCharacter(BASEVIDWIDTH - x - soffset + 2 + (skullAnimCounter/5), y,
-					'\x1D' | V_YELLOWMAP, false);
+					'\x1D', V_YELLOWMAP, false);
 			}
 		}
 	}
@@ -9422,9 +9414,9 @@ void M_DrawNightsAttackMenu(void)
 				/* Draw arrows !! */
 				y = y + 25 - 4;
 				V_DrawCharacter(208 - 10 - (skullAnimCounter/5), y,
-						'\x1C' | V_YELLOWMAP, false);
+						'\x1C', V_YELLOWMAP, false);
 				V_DrawCharacter(208 + 80 + 2 + (skullAnimCounter/5), y,
-						'\x1D' | V_YELLOWMAP, false);
+						'\x1D', V_YELLOWMAP, false);
 			}
 			// Draw press ESC to exit string on main record attack menu
 			V_DrawString(104-72, 180, V_TRANSLUCENT, M_GetText("Press ESC to exit"));
@@ -10361,7 +10353,7 @@ static void M_DrawMPMainMenu(void)
 	// draw text cursor for name
 	if (itemOn == 2 //0
 	    && skullAnimCounter < 4)   //blink cursor
-		V_DrawCharacter(x+8+V_StringWidth(setupm_ip, V_ALLOWLOWERCASE),y+12,'_',false);
+		V_DrawCharacter(x+8+V_StringWidth(setupm_ip, V_ALLOWLOWERCASE),y+12,'_',0,false);
 }
 
 // Tails 11-19-2002
@@ -10514,7 +10506,7 @@ static void M_DrawSetupMultiPlayerMenu(void)
 	V_DrawString(x + 8, y + 3, V_ALLOWLOWERCASE, setupm_name);
 	if (skullAnimCounter < 4 && itemOn == 0)
 		V_DrawCharacter(x + 8 + V_StringWidth(setupm_name, V_ALLOWLOWERCASE), y + 3,
-			'_' | 0x80, false);
+			'_', 0x80, false);
 
 	y += 20;
 
@@ -10530,9 +10522,9 @@ static void M_DrawSetupMultiPlayerMenu(void)
 	if (itemOn == 1 && (MP_PlayerSetupMenu[1].status & IT_TYPE) != IT_SPACE)
 	{
 		V_DrawCharacter(BASEVIDWIDTH - x - 10 - V_StringWidth(skins[setupm_fakeskin].realname, V_ALLOWLOWERCASE) - (skullAnimCounter/5), y,
-			'\x1C' | V_YELLOWMAP, false);
+			'\x1C', V_YELLOWMAP, false);
 		V_DrawCharacter(BASEVIDWIDTH - x + 2 + (skullAnimCounter/5), y,
-			'\x1D' | V_YELLOWMAP, false);
+			'\x1D', V_YELLOWMAP, false);
 	}
 
 	x = BASEVIDWIDTH/2;
@@ -10607,9 +10599,9 @@ colordraw:
 	if (itemOn == 2 && (MP_PlayerSetupMenu[2].status & IT_TYPE) != IT_SPACE)
 	{
 		V_DrawCharacter(BASEVIDWIDTH - x - 10 - V_StringWidth(Color_Names[setupm_fakecolor], V_ALLOWLOWERCASE) - (skullAnimCounter/5), y,
-			'\x1C' | V_YELLOWMAP, false);
+			'\x1C', V_YELLOWMAP, false);
 		V_DrawCharacter(BASEVIDWIDTH - x + 2 + (skullAnimCounter/5), y,
-			'\x1D' | V_YELLOWMAP, false);
+			'\x1D', V_YELLOWMAP, false);
 	}
 
 	y += 11;
@@ -11683,7 +11675,7 @@ static void M_DrawColorMenu(void)
 								V_DrawString(x + 8, y + 12, V_ALLOWLOWERCASE, cv->string);
 								if (skullAnimCounter < 4 && i == itemOn)
 									V_DrawCharacter(x + 8 + V_StringWidth(cv->string, 0), y + 12,
-										'_' | 0x80, false);
+										'_', 0x80, false);
 								y += 16;
 								break;
 							default:
@@ -11692,9 +11684,9 @@ static void M_DrawColorMenu(void)
 								if (i == itemOn)
 								{
 									V_DrawCharacter(BASEVIDWIDTH - x - 10 - V_StringWidth(cv->string, 0) - (skullAnimCounter/5), y,
-											'\x1C' | V_YELLOWMAP, false);
+											'\x1C', V_YELLOWMAP, false);
 									V_DrawCharacter(BASEVIDWIDTH - x + 2 + (skullAnimCounter/5), y,
-											'\x1D' | V_YELLOWMAP, false);
+											'\x1D', V_YELLOWMAP, false);
 								}
 								break;
 						}
@@ -11928,7 +11920,7 @@ static void M_OGL_DrawFogMenu(void)
 	// blink cursor on FOG_COLOR_ITEM if selected
 	if (itemOn == FOG_COLOR_ITEM && skullAnimCounter < 4)
 		V_DrawCharacter(BASEVIDWIDTH - mx,
-			my + currentMenu->menuitems[FOG_COLOR_ITEM].alphaKey, '_' | 0x80,false);
+			my + currentMenu->menuitems[FOG_COLOR_ITEM].alphaKey, '_', 0x80,false);
 }
 
 // =====================

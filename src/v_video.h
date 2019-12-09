@@ -171,9 +171,9 @@ void V_DrawFadeConsBack(INT32 plines);
 void V_DrawPromptBack(INT32 boxheight, INT32 color);
 
 // draw a single character
-void V_DrawCharacter(INT32 x, INT32 y, INT32 c, boolean lowercaseallowed);
+void V_DrawCharacter(INT32 x, INT32 y, INT32 c, INT32 flags, boolean lowercaseallowed);
 // draw a single character, but for the chat
-void V_DrawChatCharacter(INT32 x, INT32 y, INT32 c, boolean lowercaseallowed, UINT8 *colormap);
+void V_DrawChatCharacter(INT32 x, INT32 y, INT32 c, INT32 flags, boolean lowercaseallowed, UINT8 *colormap);
 
 UINT8 *V_GetStringColormap(INT32 colorflags);
 
