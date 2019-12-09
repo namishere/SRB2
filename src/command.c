@@ -225,7 +225,7 @@ void COM_BufExecute(void)
   */
 void COM_ImmedExecute(const char *itext)
 {
-	const UINT8 *ptext = (UINT8 *)itext;
+	const UINT8 *ptext = (const UINT8 *)itext;
 	size_t i = 0, j = 0;
 	UINT8 line[1024] = "";
 	INT32 quotes;

@@ -199,7 +199,8 @@ static UINT8 cht_CheckCheat(cheatseq_t *cht, char key)
 
 boolean cht_Responder(event_t *ev)
 {
-	UINT8 ret = 0, ch = 0;
+	UINT8 ret = 0;
+	UINT32 ch = 0;
 	if (ev->type != ev_keydown)
 		return false;
 
