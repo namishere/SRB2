@@ -2094,7 +2094,7 @@ char *V_WordWrap(INT32 x, INT32 w, INT32 option, const char *string)
 	for (i = 0; i < slen; ++i)
 	{
 		c = newstring[i];
-		if ((UINT8)c & 0x80) //color parsing! -Inuyasha 2.16.09
+		if (HU_IsColorCode((UINT8)c)) //color parsing! -Inuyasha 2.16.09
 			continue;
 
 		if (c == '\n')
@@ -2176,7 +2176,7 @@ void V_DrawString(INT32 x, INT32 y, INT32 option, const char *string)
 	{
 		if (!*ch)
 			break;
-		if (*ch & 0x80) //color parsing -x 2.16.09
+		if (HU_IsColorCode(*ch)) //color parsing -x 2.16.09
 		{
 			// manually set flags override color codes
 			if (!(option & V_CHARCOLORMASK))
@@ -2291,7 +2291,7 @@ void V_DrawSmallString(INT32 x, INT32 y, INT32 option, const char *string)
 	{
 		if (!*ch)
 			break;
-		if (*ch & 0x80) //color parsing -x 2.16.09
+		if (HU_IsColorCode(*ch)) //color parsing -x 2.16.09
 		{
 			// manually set flags override color codes
 			if (!(option & V_CHARCOLORMASK))
@@ -2399,7 +2399,7 @@ void V_DrawThinString(INT32 x, INT32 y, INT32 option, const char *string)
 	{
 		if (!*ch)
 			break;
-		if (*ch & 0x80) //color parsing -x 2.16.09
+		if (HU_IsColorCode(*ch)) //color parsing -x 2.16.09
 		{
 			// manually set flags override color codes
 			if (!(option & V_CHARCOLORMASK))
@@ -2502,7 +2502,7 @@ void V_DrawStringAtFixed(fixed_t x, fixed_t y, INT32 option, const char *string)
 	{
 		if (!*ch)
 			break;
-		if (*ch & 0x80) //color ignoring
+		if (HU_IsColorCode(*ch)) //color ignoring
 		{
 			// manually set flags override color codes
 			if (!(option & V_CHARCOLORMASK))
@@ -2910,7 +2910,7 @@ void V_DrawLevelTitle(INT32 x, INT32 y, INT32 option, const char *string)
 	{
 		if (!*ch)
 			break;
-		if (*ch & 0x80) //color parsing -x 2.16.09
+		if (HU_IsColorCode(*ch)) //color parsing -x 2.16.09
 		{
 			// manually set flags override color codes
 			if (!(option & V_CHARCOLORMASK))
@@ -2957,7 +2957,7 @@ INT32 V_LevelNameWidth(const char *string)
 
 	for (i = 0; i < strlen(string); i++)
 	{
-		if (string[i] & 0x80)
+		if (HU_IsColorCode(string[i]))
 			continue;
 		c = string[i] - LT_FONTSTART;
 		if (c < 0 || c >= LT_FONTSIZE || !lt_font[c])
@@ -3024,7 +3024,7 @@ INT32 V_StringWidth(const char *string, INT32 option)
 
 	for (i = 0; i < strlen(string); i++)
 	{
-		if (string[i] & 0x80)
+		if (HU_IsColorCode(string[i]))
 			continue;
 		c = toupper(string[i]) - HU_FONTSTART;
 		if (c < 0 || c >= HU_FONTSIZE || !hu_font[c])
@@ -3064,7 +3064,7 @@ INT32 V_SmallStringWidth(const char *string, INT32 option)
 
 	for (i = 0; i < strlen(string); i++)
 	{
-		if (string[i] & 0x80)
+		if (HU_IsColorCode(string[i]))
 			continue;
 		c = toupper(string[i]) - HU_FONTSTART;
 		if (c < 0 || c >= HU_FONTSIZE || !hu_font[c])
@@ -3101,7 +3101,7 @@ INT32 V_ThinStringWidth(const char *string, INT32 option)
 
 	for (i = 0; i < strlen(string); i++)
 	{
-		if (string[i] & 0x80)
+		if (HU_IsColorCode(string[i]))
 			continue;
 		c = toupper(string[i]) - HU_FONTSTART;
 		if (c < 0 || c >= HU_FONTSIZE || !tny_font[c])

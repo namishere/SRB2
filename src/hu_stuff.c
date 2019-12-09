@@ -1029,7 +1029,7 @@ static void HU_queueChatChar(char c)
 
 		do {
 			c = w_chat[-2+ci++];
-			if (!c || (c >= ' ' && !(c & 0x80))) // copy printable characters and terminating '\0' only.
+			if (!c || (c >= ' ' && !(HU_IsColorCode(c)))) // copy printable characters and terminating '\0' only.
 				buf[ci-1]=c;
 		} while (c);
 
@@ -1409,7 +1409,7 @@ static void HU_drawMiniChat(void)
 					prev_linereturn = true;
 					continue;
 				}
-				else if (msg[j] & 0x80) // stolen from video.c, nice.
+				else if (HU_IsColorCode(msg[j])) // stolen from video.c, nice.
 				{
 					++j;
 					continue;
@@ -1472,7 +1472,7 @@ static void HU_drawMiniChat(void)
 					prev_linereturn = true;
 					continue;
 				}
-				else if (msg[j] & 0x80) // stolen from video.c, nice.
+				else if (HU_IsColorCode(msg[j])) // stolen from video.c, nice.
 				{
 					clrflag = ((msg[j] & 0x7f) << V_CHARCOLORSHIFT) & V_CHARCOLORMASK;
 					colormap = V_GetStringColormap(clrflag);
@@ -1564,7 +1564,7 @@ static void HU_drawChatLog(INT32 offset)
 					dx = 0;
 					continue;
 				}
-				else if (msg[j] & 0x80) // stolen from video.c, nice.
+				else if (HU_IsColorCode(msg[j])) // stolen from video.c, nice.
 				{
 					clrflag = ((msg[j] & 0x7f) << V_CHARCOLORSHIFT) & V_CHARCOLORMASK;
 					colormap = V_GetStringColormap(clrflag);
