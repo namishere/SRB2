@@ -2549,7 +2549,7 @@ const char *I_ClipboardPaste(void)
 		}
 		else if (*i == '\t')
 			*i = ' '; // Tabs become spaces
-		else if (*i < 32 || (unsigned)*i > 127)
+		else if ((unsigned)*i < 32)
 			*i = '?'; // Nonprintable chars become question marks
 		++i;
 	}
