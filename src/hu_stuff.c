@@ -2854,7 +2854,7 @@ static void HU_Draw32TabRankings(INT32 x, INT32 y, playersort_t *tab, INT32 scor
 		greycheck = greycheckdef;
 		supercheck = supercheckdef;
 
-		HU_StringCopyLen((UINT8 *)name, (UINT8 *)tab[i].name, 7);
+		HU_StringCopyLen((UINT8 *)name, (const UINT8 *)tab[i].name, 7);
 		if (!splitscreen) // don't draw it on splitscreen,
 		{
 			if (!(tab[i].num == serverplayer))
