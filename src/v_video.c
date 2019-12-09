@@ -2007,15 +2007,11 @@ void V_DrawCharacter(INT32 x, INT32 y, INT32 c, INT32 eflags, boolean lowercasea
 
 	flags = eflags & ~(V_CHARCOLORMASK | V_PARAMMASK);
 	if (c < HU_FONTEXT)
-	{
 		c &= 0x7f;
-		if (lowercaseallowed)
-			c -= HU_FONTSTART;
-		else
-			c = toupper(c) - HU_FONTSTART;
-	}
-	else
+	if (lowercaseallowed)
 		c -= HU_FONTSTART;
+	else
+		c = V_CharUppercase(c) - HU_FONTSTART;
 
 	if (c < 0 || c >= HU_FONTSIZE || !hu_font[c])
 		return;
@@ -2040,15 +2036,11 @@ void V_DrawChatCharacter(INT32 x, INT32 y, INT32 c, INT32 eflags, boolean lowerc
 
 	flags = eflags & ~(V_CHARCOLORMASK | V_PARAMMASK);
 	if (c < HU_FONTEXT)
-	{
 		c &= 0x7f;
-		if (lowercaseallowed)
-			c -= HU_FONTSTART;
-		else
-			c = toupper(c) - HU_FONTSTART;
-	}
-	else
+	if (lowercaseallowed)
 		c -= HU_FONTSTART;
+	else
+		c = V_CharUppercase(c) - HU_FONTSTART;
 
 	if (c < 0 || c >= HU_FONTSIZE || !hu_font[c])
 		return;
@@ -2105,7 +2097,7 @@ char *V_WordWrap(INT32 x, INT32 w, INT32 option, const char *string)
 		}
 
 		if (!(option & V_ALLOWLOWERCASE))
-			c = toupper(c);
+			c = V_CharUppercase(c);
 		c -= HU_FONTSTART;
 
 		if (c < 0 || c >= HU_FONTSIZE || !hu_font[c])
@@ -2127,6 +2119,25 @@ char *V_WordWrap(INT32 x, INT32 w, INT32 option, const char *string)
 		}
 	}
 	return newstring;
+}
+
+// Lactozilla
+UINT8 V_CharUppercase(UINT8 chr)
+{
+	// No uppercase variant of this character
+	// At least, not in Latin-1 Supplement
+	// But it's present Latin Extended-A
+	// Though it can't fit in a single byte
+	if ((char)chr == 'ÿ')
+		return chr;
+	// No uppercase variant of these characters
+	if ((char)chr == 'ß' || (char)chr == '×' || (char)chr == '÷')
+		return chr;
+	// U+00C0 to U+00FE
+	// Lowercase characters start at U+00E0
+	if ((char)chr >= 'à' && (char)chr <= 'þ')
+		return chr - 32;
+	return (UINT8)toupper((char)chr);
 }
 
 //
@@ -2197,7 +2208,7 @@ void V_DrawString(INT32 x, INT32 y, INT32 option, const char *string)
 
 		c = *ch;
 		if (!lowercase)
-			c = toupper(c);
+			c = V_CharUppercase(c);
 		c -= HU_FONTSTART;
 
 		// character does not exist or is a space
@@ -2312,7 +2323,7 @@ void V_DrawSmallString(INT32 x, INT32 y, INT32 option, const char *string)
 
 		c = *ch;
 		if (!lowercase)
-			c = toupper(c);
+			c = V_CharUppercase(c);
 		c -= HU_FONTSTART;
 
 		if (c < 0 || c >= HU_FONTSIZE || !hu_font[c])
@@ -2420,7 +2431,7 @@ void V_DrawThinString(INT32 x, INT32 y, INT32 option, const char *string)
 
 		c = *ch;
 		if (!lowercase || !tny_font[c-HU_FONTSTART])
-			c = toupper(c);
+			c = V_CharUppercase(c);
 		c -= HU_FONTSTART;
 
 		if (c < 0 || c >= HU_FONTSIZE || !tny_font[c])
@@ -2523,7 +2534,7 @@ void V_DrawStringAtFixed(fixed_t x, fixed_t y, INT32 option, const char *string)
 
 		c = *ch;
 		if (!lowercase)
-			c = toupper(c);
+			c = V_CharUppercase(c);
 		c -= HU_FONTSTART;
 
 		// character does not exist or is a space
@@ -2646,7 +2657,7 @@ void V_DrawCreditString(fixed_t x, fixed_t y, INT32 option, const char *string)
 			continue;
 		}
 
-		c = toupper(c) - CRED_FONTSTART;
+		c = V_CharUppercase(c) - CRED_FONTSTART;
 		if (c < 0 || c >= CRED_FONTSIZE)
 		{
 			cx += (16*dupx)<<FRACBITS;
@@ -2702,7 +2713,7 @@ static void V_DrawNameTagLine(INT32 x, INT32 y, INT32 option, fixed_t scale, UIN
 			continue;
 		}
 
-		c = toupper(*ch);
+		c = V_CharUppercase(*ch);
 		c -= NT_FONTSTART;
 
 		// character does not exist or is a space
@@ -2849,7 +2860,7 @@ INT32 V_NameTagWidth(const char *string)
 
 	for (i = 0; i < strlen(string); i++)
 	{
-		c = toupper(string[i]) - NT_FONTSTART;
+		c = V_CharUppercase(string[i]) - NT_FONTSTART;
 		if (c < 0 || c >= NT_FONTSIZE || !ntb_font[c] || !nto_font[c])
 			w += 4;
 		else
@@ -2872,7 +2883,7 @@ INT32 V_CreditStringWidth(const char *string)
 
 	for (i = 0; i < strlen(string); i++)
 	{
-		c = toupper(string[i]) - CRED_FONTSTART;
+		c = V_CharUppercase(string[i]) - CRED_FONTSTART;
 		if (c < 0 || c >= CRED_FONTSIZE)
 			w += 16;
 		else
@@ -3026,7 +3037,7 @@ INT32 V_StringWidth(const char *string, INT32 option)
 	{
 		if (HU_IsColorCode(string[i]))
 			continue;
-		c = toupper(string[i]) - HU_FONTSTART;
+		c = V_CharUppercase(string[i]) - HU_FONTSTART;
 		if (c < 0 || c >= HU_FONTSIZE || !hu_font[c])
 			w += spacewidth;
 		else
@@ -3066,7 +3077,7 @@ INT32 V_SmallStringWidth(const char *string, INT32 option)
 	{
 		if (HU_IsColorCode(string[i]))
 			continue;
-		c = toupper(string[i]) - HU_FONTSTART;
+		c = V_CharUppercase(string[i]) - HU_FONTSTART;
 		if (c < 0 || c >= HU_FONTSIZE || !hu_font[c])
 			w += spacewidth;
 		else
@@ -3103,7 +3114,7 @@ INT32 V_ThinStringWidth(const char *string, INT32 option)
 	{
 		if (HU_IsColorCode(string[i]))
 			continue;
-		c = toupper(string[i]) - HU_FONTSTART;
+		c = V_CharUppercase(string[i]) - HU_FONTSTART;
 		if (c < 0 || c >= HU_FONTSIZE || !tny_font[c])
 			w += spacewidth;
 		else
