@@ -92,6 +92,9 @@ int	snprintf(char *str, size_t n, const char *fmt, ...);
 #define SLIDER_WIDTH 78
 #define SERVERS_PER_PAGE 11
 
+// Lactozilla
+#define TEXTINPUTEVENT 0x80000000
+
 typedef enum
 {
 	QUITMSG = 0,
@@ -2888,17 +2891,21 @@ static boolean M_ChangeStringCvar(INT32 choice)
 			}
 			return true;
 		default:
-			if (choice >= 32 && choice <= 127)
+			if ((choice & TEXTINPUTEVENT) || (choice == 32)) // ev_textinput
 			{
-				len = strlen(cv->string);
-				if (len < MAXSTRINGLENGTH - 1)
+				choice &= ~TEXTINPUTEVENT;
+				if (choice >= 32 && choice <= 0xFF)
 				{
-					M_Memcpy(buf, cv->string, len);
-					buf[len++] = (char)choice;
-					buf[len] = 0;
-					CV_Set(cv, buf);
+					len = strlen(cv->string);
+					if (len < MAXSTRINGLENGTH - 1)
+					{
+						M_Memcpy(buf, cv->string, len);
+						buf[len++] = (char)choice;
+						buf[len] = 0;
+						CV_Set(cv, buf);
+					}
+					return true;
 				}
-				return true;
 			}
 			break;
 	}
@@ -3196,12 +3203,12 @@ textinputhandler:
 	// Handle menuitems which need a specific key handling
 	if (routine && (currentMenu->menuitems[itemOn].status & IT_TYPE) == IT_KEYHANDLER)
 	{
-		routine(ch | ((ev->type == ev_textinput) ? 0x80000000 : 0)); // Of course
+		routine(ch | ((ev->type == ev_textinput) ? TEXTINPUTEVENT : 0)); // Of course
 		return true;
 	}
 
 	if (ev->type == ev_textinput)
-		return false;
+		goto cvartextinputhandler;
 
 	if (currentMenu->menuitems[itemOn].status == IT_MSGHANDLER)
 	{
@@ -3233,18 +3240,22 @@ textinputhandler:
 	}
 
 	// BP: one of the more big hack i have never made
+cvartextinputhandler:
 	if (routine && (currentMenu->menuitems[itemOn].status & IT_TYPE) == IT_CVAR)
 	{
 		if ((currentMenu->menuitems[itemOn].status & IT_CVARTYPE) == IT_CV_STRING)
 		{
-			if (M_ChangeStringCvar(ch))
+			if (M_ChangeStringCvar(ch | ((ev->type == ev_textinput) ? TEXTINPUTEVENT : 0))) // Of course
 				return true;
 			else
 				routine = NULL;
 		}
-		else
+		else if (ev->type != ev_textinput)
 			routine = M_ChangeCvar;
 	}
+
+	if (ev->type == ev_textinput)
+		return false;
 
 	// Keys usable within menu
 	switch (ch)
@@ -6218,13 +6229,17 @@ static boolean M_ChangeStringAddons(INT32 choice)
 			}
 			break;
 		default:
-			if (choice >= 32 && choice <= 127)
+			if ((choice & TEXTINPUTEVENT) || (choice == 32)) // ev_textinput
 			{
-				if (len < MAXSTRINGLENGTH - 1)
+				choice &= ~TEXTINPUTEVENT;
+				if (choice >= 32 && choice <= 0xFF)
 				{
-					menusearch[1+len++] = (char)choice;
-					menusearch[1+len] = 0;
-					return true;
+					if (len < MAXSTRINGLENGTH - 1)
+					{
+						menusearch[1+len++] = (char)choice;
+						menusearch[1+len] = 0;
+						return true;
+					}
 				}
 			}
 			break;
@@ -10770,9 +10785,9 @@ static void M_HandleSetupMultiPlayer(INT32 choice)
 			break;
 
 		default:
-			if ((choice & 0x80000000) || (choice == 32)) // ev_textinput
+			if ((choice & TEXTINPUTEVENT) || (choice == 32)) // ev_textinput
 			{
-				choice &= ~0x80000000;
+				choice &= ~TEXTINPUTEVENT;
 				if (itemOn != 0 || choice < 32 || choice > 0xFF)
 					break;
 				S_StartSound(NULL,sfx_menu1); // Tails
