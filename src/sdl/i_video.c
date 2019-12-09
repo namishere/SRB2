@@ -682,10 +682,10 @@ static void Impl_HandleTextInputEvent(char *text)
 	if (special == 256)
 		event.data1 = text[0];
 	else
-		event.data1 = special;
+		event.data1 = special+64;
 
 	event.type = ev_textinput;
-	if (event.data1 >= 33 && event.data1 <= 191)
+	if (event.data1 >= 33 && event.data1 <= 0xFF)
 		D_PostEvent(&event);
 }
 

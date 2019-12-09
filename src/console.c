@@ -1077,7 +1077,7 @@ boolean CON_Responder(event_t *ev)
 		return true;
 
 	// enter a char into the command prompt
-	if (key < 32 || key > 191)
+	if (key < 32 || key > 0xFF)
 		return true;
 
 	if (input_sel != input_cur)
@@ -1488,7 +1488,7 @@ static void CON_DrawHudlines(void)
 			else
 			{
 				//charwidth = SHORT(hu_font['A'-HU_FONTSTART]->width) * con_scalefactor;
-				V_DrawCharacter(x, y, (INT32)(*p), charflags | cv_constextsize.value | V_NOSCALESTART, true);
+				V_DrawCharacter(x, y, *p, charflags | cv_constextsize.value | V_NOSCALESTART, true);
 			}
 		}
 

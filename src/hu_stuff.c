@@ -147,7 +147,7 @@ void HU_LoadGraphics(void)
 		// cache the heads-up font for entire game execution
 		sprintf(buffer, "STCFN%.3d", j);
 		if (j > 127)
-			sprintf(buffer, "UN%06X", j+64);
+			sprintf(buffer, "UN%06X", j);
 
 		if (W_CheckNumForName(buffer) == LUMPERROR)
 			hu_font[i] = NULL;

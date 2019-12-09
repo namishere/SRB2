@@ -42,7 +42,7 @@ void COM_BufAddText(const char *btext);
 void COM_BufInsertText(const char *btext);
 
 // don't bother inserting, just do immediately
-void COM_ImmedExecute(const char *ptext);
+void COM_ImmedExecute(const char *itext);
 
 // Execute commands in buffer, flush them
 void COM_BufExecute(void);

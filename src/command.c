@@ -38,7 +38,7 @@
 // protos.
 //========
 static boolean COM_Exists(const char *com_name);
-static void COM_ExecuteString(char *com_text);
+static void COM_ExecuteString(UINT8 *com_text);
 
 static void COM_Alias_f(void);
 static void COM_Echo_f(void);
@@ -58,8 +58,8 @@ static consvar_t *CV_FindVar(const char *name);
 static const char *CV_StringValue(const char *var_name);
 static consvar_t *consvar_vars; // list of registered console variables
 
-static char com_token[1024];
-static char *COM_Parse(char *data);
+static UINT8 com_token[1024];
+static UINT8 *COM_Parse(UINT8 *data);
 
 CV_PossibleValue_t CV_OnOff[] = {{0, "Off"}, {1, "On"}, {0, NULL}};
 CV_PossibleValue_t CV_YesNo[] = {{0, "No"}, {1, "Yes"}, {0, NULL}};
@@ -168,14 +168,14 @@ COM_BufTicker(void)
 void COM_BufExecute(void)
 {
 	size_t i;
-	char *ptext;
-	char line[1024] = "";
+	UINT8 *ptext;
+	UINT8 line[1024] = "";
 	INT32 quotes;
 
 	while (com_text.cursize)
 	{
 		// find a '\n' or; line break
-		ptext = (char *)com_text.data;
+		ptext = (UINT8 *)com_text.data;
 
 		quotes = 0;
 		for (i = 0; i < com_text.cursize; i++)
@@ -223,17 +223,17 @@ void COM_BufExecute(void)
 
 /** Executes a string immediately.  Used for skirting around WAIT commands.
   */
-void COM_ImmedExecute(const char *ptext)
+void COM_ImmedExecute(const char *itext)
 {
+	const UINT8 *ptext = (UINT8 *)itext;
 	size_t i = 0, j = 0;
-	char line[1024] = "";
+	UINT8 line[1024] = "";
 	INT32 quotes;
 
-	while (i < strlen(ptext))
+	while (i < HU_StringLength(ptext))
 	{
-
 		quotes = 0;
-		for (j = 0; i < strlen(ptext); i++,j++)
+		for (j = 0; i < HU_StringLength(ptext); i++,j++)
 		{
 			if (ptext[i] == '\"' && !quotes && i > 0 && ptext[i-1] != ' ') // Malformed command
 				return;
@@ -384,7 +384,7 @@ size_t COM_FirstOption(void)
   * \param ptext A null-terminated string. Does not need to be
   *             newline-terminated.
   */
-static void COM_TokenizeString(char *ptext)
+static void COM_TokenizeString(UINT8 *ptext)
 {
 	size_t i;
 
@@ -407,13 +407,13 @@ static void COM_TokenizeString(char *ptext)
 			break;
 
 		if (com_argc == 1)
-			com_args = ptext;
+			com_args = (char *)ptext;
 
 		ptext = COM_Parse(ptext);
 		if (ptext == NULL)
 			break;
 
-		com_argv[com_argc] = Z_StrDup(com_token);
+		com_argv[com_argc] = (char *)HU_StringCopyAlloc(com_token);
 		com_argc++;
 	}
 }
@@ -541,7 +541,7 @@ const char *COM_CompleteCommand(const char *partial, INT32 skips)
   *
   * \param ptext A single line of text.
   */
-static void COM_ExecuteString(char *ptext)
+static void COM_ExecuteString(UINT8 *ptext)
 {
 	xcommand_t *cmd;
 	cmdalias_t *a;
@@ -2077,9 +2077,9 @@ void CV_SaveVariables(FILE *f)
   * \param data String to parse.
   * \return The data pointer after the token. NULL if no token found.
   */
-static char *COM_Parse(char *data)
+static UINT8 *COM_Parse(UINT8 *data)
 {
-	char c;
+	UINT8 c;
 	size_t len = 0;
 
 	com_token[0] = 0;
