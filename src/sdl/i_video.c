@@ -102,6 +102,9 @@ static consvar_t cv_stretch = {"stretch", "Off", CV_SAVE|CV_NOSHOWHELP, CV_OnOff
 
 UINT8 graphics_started = 0; // Is used in console.c and screen.c
 
+// Lactozilla: keyboard input
+consvar_t cv_forceqwerty = {"forceqwerty", "On", CV_SAVE, CV_OnOff, NULL, 0, NULL, NULL, 0, 0, NULL};
+
 // To disable fullscreen at startup; is set in VID_PrepareModeList
 boolean allow_fullscreen = false;
 static SDL_bool disable_fullscreen = SDL_FALSE;
@@ -380,19 +383,26 @@ static INT32 Impl_SDL_Scancode_To_Keycode(SDL_Scancode code, Uint32 type)
 		default:          break;
 	}
 
-	if (keycode >= SDLK_a && keycode <= SDLK_z)
+	// Tested by installing a French keymap
+	if (cv_forceqwerty.value)
 	{
-		// get lowercase ASCII
-		return keycode - SDLK_a + 'a';
+		if (code >= SDL_SCANCODE_A && code <= SDL_SCANCODE_Z)
+			return code - SDL_SCANCODE_A + 'a';
+		else if (code >= SDL_SCANCODE_1 && code <= SDL_SCANCODE_9)
+			return code - SDL_SCANCODE_1 + '1';
+		else if (code == SDL_SCANCODE_0)
+			return '0';
 	}
-	if (keycode >= SDLK_1 && keycode <= SDLK_9)
+	else
 	{
-		return keycode - SDLK_1 + '1';
+		if (keycode >= SDLK_a && keycode <= SDLK_z)
+			return keycode - SDLK_a + 'a';
+		else if (keycode >= SDLK_1 && keycode <= SDLK_9)
+			return keycode - SDLK_1 + '1';
+		else if (keycode == SDLK_0)
+			return '0';
 	}
-	else if (keycode == SDLK_0)
-	{
-		return '0';
-	}
+
 #ifdef HWRENDER
 	DBG_Printf("Unknown incoming scancode: %d, represented %c\n",
 				code,
@@ -1667,6 +1677,9 @@ void I_StartupGraphics(void)
 	CV_RegisterVar (&cv_stretch);
 	disable_mouse = M_CheckParm("-nomouse");
 	disable_fullscreen = M_CheckParm("-win") ? 1 : 0;
+
+	// Lactozilla
+	CV_RegisterVar (&cv_forceqwerty);
 
 	keyboard_started = true;
 
