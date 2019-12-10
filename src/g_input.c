@@ -40,7 +40,7 @@ INT32 mouse2x, mouse2y, mlook2y;
 INT32 joyxmove[JOYAXISSET], joyymove[JOYAXISSET], joy2xmove[JOYAXISSET], joy2ymove[JOYAXISSET];
 
 // current state of the keys: true if pushed
-UINT8 gamekeydown[NUMINPUTS];
+INT32 gamekeydown[NUMINPUTS];
 
 // two key codes (or virtual key) per game control
 INT32 gamecontrol[num_gamecontrols][2];
@@ -117,7 +117,7 @@ void G_MapEventsToControls(event_t *ev)
 	switch (ev->type)
 	{
 		case ev_keydown:
-			if (ev->data1 < NUMINPUTS)
+			if (ev->data1 < NUMINPUTS || (ev->data1 & KEY_XTMASK))
 				gamekeydown[ev->data1] = 1;
 #ifdef PARANOIA
 			else
@@ -129,7 +129,7 @@ void G_MapEventsToControls(event_t *ev)
 			break;
 
 		case ev_keyup:
-			if (ev->data1 < NUMINPUTS)
+			if (ev->data1 < NUMINPUTS || (ev->data1 & KEY_XTMASK))
 				gamekeydown[ev->data1] = 0;
 #ifdef PARANOIA
 			else
@@ -638,9 +638,9 @@ const char *G_KeynumToString(INT32 keynum)
 	UINT32 j;
 
 	// return a string with the ascii char if displayable
-	if (keynum > ' ' && keynum <= 'z' && keynum != KEY_CONSOLE)
+	if (keynum > ' ' && keynum <= 0xFF && keynum != KEY_CONSOLE)
 	{
-		keynamestr[0] = (char)keynum;
+		keynamestr[0] = (UINT8)keynum;
 		keynamestr[1] = '\0';
 		return keynamestr;
 	}
@@ -657,10 +657,12 @@ const char *G_KeynumToString(INT32 keynum)
 
 INT32 G_KeyStringtoNum(const char *keystr)
 {
+	const UINT8 *keystr_u = (const UINT8 *)keystr;
 	UINT32 j;
 
-	if (!keystr[1] && keystr[0] > ' ' && keystr[0] <= 'z')
-		return keystr[0];
+	// You can put ñ as your strafe left key but the game won't recognize it
+	if (!keystr_u[1] && keystr_u[0] > ' ' && keystr_u[0] <= 0xFF)
+		return (UINT8)keystr[0];
 
 	if (!strncmp(keystr, "KEY", 3) && keystr[3] >= '0' && keystr[3] <= '9')
 		return atoi(&keystr[3]);

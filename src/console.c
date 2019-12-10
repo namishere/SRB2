@@ -783,7 +783,7 @@ boolean CON_Responder(event_t *ev)
 		// check other keys only if console prompt is active
 		if (!consoleready && key < NUMINPUTS) // metzgermeister: boundary check!!
 		{
-			if (bindtable[key])
+			if (bindtable[key] && ev->type == ev_keydown) // ev_textinput crashes the game. Why?
 			{
 				COM_BufAddText(bindtable[key]);
 				COM_BufAddText("\n");

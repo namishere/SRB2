@@ -20,7 +20,7 @@
 
 // number of total 'button' inputs, include keyboard keys, plus virtual
 // keys (mousebuttons and joybuttons becomes keys)
-#define NUMKEYS 256
+#define NUMKEYS 0x200 // Needs to be at least a single bit higher KEY_XTMASK!!!!
 
 #define MOUSEBUTTONS 8
 #define JOYBUTTONS   32 // 32 buttons
@@ -123,7 +123,7 @@ extern INT32 mouse2x, mouse2y, mlook2y;
 extern INT32 joyxmove[JOYAXISSET], joyymove[JOYAXISSET], joy2xmove[JOYAXISSET], joy2ymove[JOYAXISSET];
 
 // current state of the keys: true if pushed
-extern UINT8 gamekeydown[NUMINPUTS];
+extern INT32 gamekeydown[NUMINPUTS];
 
 // two key codes (or virtual key) per game control
 extern INT32 gamecontrol[num_gamecontrols][2];
