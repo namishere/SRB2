@@ -661,7 +661,7 @@ INT32 G_KeyStringtoNum(const char *keystr)
 	UINT32 j;
 
 	// You can put ñ as your strafe left key but the game won't recognize it
-	if (!keystr_u[1] && keystr_u[0] > ' ' && keystr_u[0] <= 0xFF)
+	if (!keystr_u[1] && keystr_u[0] > ' ')
 		return (UINT8)keystr[0];
 
 	if (!strncmp(keystr, "KEY", 3) && keystr[3] >= '0' && keystr[3] <= '9')
