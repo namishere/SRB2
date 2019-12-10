@@ -94,6 +94,7 @@ int	snprintf(char *str, size_t n, const char *fmt, ...);
 
 // Lactozilla
 #define TEXTINPUTEVENT 0x80000000
+#define M_KeyboardTextInput(ch) (!cv_textinput.value) ? (true) : (ch & TEXTINPUTEVENT)
 
 typedef enum
 {
@@ -2895,7 +2896,7 @@ static boolean M_ChangeStringCvar(INT32 choice)
 			}
 			return true;
 		default:
-			if ((choice & TEXTINPUTEVENT) || (choice == 32)) // ev_textinput
+			if (M_KeyboardTextInput(choice) || (choice == 32)) // ev_textinput
 			{
 				choice &= ~TEXTINPUTEVENT;
 				if (choice >= 32 && choice <= 0xFF)
@@ -3210,10 +3211,13 @@ textinputhandler:
 	// Handle menuitems which need a specific key handling
 	if (routine && (currentMenu->menuitems[itemOn].status & IT_TYPE) == IT_KEYHANDLER)
 	{
+		INT32 chbits = ((ev->type == ev_textinput) ? TEXTINPUTEVENT : 0); // Of course
 		if (!cv_textinput.value)
+		{
 			if (shiftdown && ch >= 32 && ch <= 127)
 				ch = shiftxform[ch];
-		routine(ch | ((ev->type == ev_textinput) ? TEXTINPUTEVENT : 0)); // Of course
+		}
+		routine(ch | chbits);
 		return true;
 	}
 
@@ -3255,7 +3259,8 @@ cvartextinputhandler:
 	{
 		if ((currentMenu->menuitems[itemOn].status & IT_CVARTYPE) == IT_CV_STRING)
 		{
-			if (M_ChangeStringCvar(ch | ((ev->type == ev_textinput) ? TEXTINPUTEVENT : 0))) // Of course
+			INT32 chbits = ((ev->type == ev_textinput) ? TEXTINPUTEVENT : 0); // Of course
+			if (M_ChangeStringCvar(ch | chbits))
 				return true;
 			else
 				routine = NULL;
@@ -6242,7 +6247,7 @@ static boolean M_ChangeStringAddons(INT32 choice)
 			}
 			break;
 		default:
-			if ((choice & TEXTINPUTEVENT) || (choice == 32)) // ev_textinput
+			if (M_KeyboardTextInput(choice) || (choice == 32)) // ev_textinput
 			{
 				choice &= ~TEXTINPUTEVENT;
 				if (choice >= 32 && choice <= 0xFF)
@@ -10469,7 +10474,7 @@ static void M_HandleConnectIP(INT32 choice)
 			break;
 
 		default:
-			if (choice & TEXTINPUTEVENT) // ev_textinput
+			if (M_KeyboardTextInput(choice)) // ev_textinput
 			{
 				choice &= ~TEXTINPUTEVENT;
 				l = strlen(setupm_ip);
@@ -10793,7 +10798,7 @@ static void M_HandleSetupMultiPlayer(INT32 choice)
 			break;
 
 		default:
-			if ((choice & TEXTINPUTEVENT) || (choice == 32)) // ev_textinput
+			if (M_KeyboardTextInput(choice) || (choice == 32)) // ev_textinput
 			{
 				choice &= ~TEXTINPUTEVENT;
 				if (itemOn != 0 || choice < 32 || choice > 0xFF)
