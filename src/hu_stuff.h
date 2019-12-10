@@ -48,6 +48,9 @@
 
 #define HU_CROSSHAIRS 3 // maximum of 9 - see HU_Init();
 
+extern char *shiftxform; // english translation shift table
+extern char english_shiftxform[];
+
 //------------------------------------
 //        sorted player lines
 //------------------------------------

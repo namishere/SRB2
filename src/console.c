@@ -173,6 +173,14 @@ static void CONS_Clear_f(void)
 	con_scrollup = 0;
 }
 
+// Choose english keymap
+//
+/*static void CONS_English_f(void)
+{
+	shiftxform = english_shiftxform;
+	CONS_Printf(M_GetText("%s keymap.\n"), M_GetText("English"));
+}*/
+
 static char *bindtable[NUMINPUTS];
 
 static void CONS_Bind_f(void)
@@ -1070,6 +1078,30 @@ boolean CON_Responder(event_t *ev)
 		return true;
 	}
 
+	// allow people to use keypad in console (good for typing IP addresses) - Calum
+	if (!cv_textinput.value)
+	{
+		if (key >= KEY_KEYPAD7 && key <= KEY_KPADDEL)
+		{
+			char keypad_translation[] = {'7','8','9','-',
+										 '4','5','6','+',
+										 '1','2','3',
+										 '0','.'};
+
+			key = keypad_translation[key - KEY_KEYPAD7];
+		}
+		else if (key == KEY_KPADSLASH)
+			key = '/';
+
+		if (key >= 'a' && key <= 'z')
+		{
+			if (capslock ^ shiftdown)
+				key = shiftxform[key];
+		}
+		else if (shiftdown)
+			key = shiftxform[key];
+	}
+
 	// Lactozilla: Ignore caps lock key
 	// or else it turns into a printable character
 	if (ev->type != ev_textinput && key == KEY_CAPSLOCK)
@@ -1078,6 +1110,11 @@ boolean CON_Responder(event_t *ev)
 	// enter a char into the command prompt
 	if (key < 32 || key > 0xFF)
 		return true;
+
+	// add key to cmd line here
+	if (!cv_textinput.value)
+		if (key >= 'A' && key <= 'Z' && !(shiftdown ^ capslock)) //this is only really necessary for dedicated servers
+			key = key + 'a' - 'A';
 
 	if (input_sel != input_cur)
 		CON_InputDelSelection();

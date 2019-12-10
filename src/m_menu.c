@@ -2879,6 +2879,10 @@ static boolean M_ChangeStringCvar(INT32 choice)
 	char buf[MAXSTRINGLENGTH];
 	size_t len;
 
+	if (!cv_textinput.value)
+		if (shiftdown && choice >= 32 && choice <= 127)
+			choice = shiftxform[choice];
+
 	switch (choice)
 	{
 		case KEY_BACKSPACE:
@@ -6215,6 +6219,9 @@ static void M_AddonExec(INT32 ch)
 #define len menusearch[0]
 static boolean M_ChangeStringAddons(INT32 choice)
 {
+	if (!cv_textinput.value)
+		choice = shiftxform[choice];
+
 	switch (choice)
 	{
 		case KEY_DEL:
