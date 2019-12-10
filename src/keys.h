@@ -78,7 +78,7 @@
 #define KEY_F12 (0x100+41)
 
 #define KEY_CAPSLOCK (0x100+42)
-#define KEY_CONSOLE '`' // (0x100+43)
+#define KEY_CONSOLE KEY_MENU // (0x100+43)
 #define KEY_PAUSE (0x100+44)
 #define KEY_PRTSC (0x100+45)
 

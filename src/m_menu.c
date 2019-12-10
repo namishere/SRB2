@@ -2964,6 +2964,9 @@ static void Command_Manual_f(void)
 
 boolean M_TextInput(void)
 {
+	// Of course return false if the menus are down...
+	if (!menuactive)
+		return false;
 	return ((currentMenu->menuitems[itemOn].status & IT_TYPE) == IT_KEYHANDLER);
 }
 

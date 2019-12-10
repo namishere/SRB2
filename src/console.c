@@ -391,7 +391,6 @@ void CON_Init(void)
 	con_destlines = vid.height;
 	con_curlines = vid.height;
 
-
 	if (!dedicated)
 	{
 		con_started = true;
@@ -409,6 +408,7 @@ void CON_Init(void)
 	{
 		con_started = true;
 		con_startup = false; // need explicit screen refresh until we are in Doom loop
+		consoleready = false;
 		consoletoggle = true;
 	}
 }
