@@ -408,7 +408,6 @@ void CON_Init(void)
 	{
 		con_started = true;
 		con_startup = false; // need explicit screen refresh until we are in Doom loop
-		consoleready = false;
 		consoletoggle = true;
 	}
 }
