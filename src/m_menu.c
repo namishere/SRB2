@@ -3210,6 +3210,9 @@ textinputhandler:
 	// Handle menuitems which need a specific key handling
 	if (routine && (currentMenu->menuitems[itemOn].status & IT_TYPE) == IT_KEYHANDLER)
 	{
+		if (!cv_textinput.value)
+			if (shiftdown && ch >= 32 && ch <= 127)
+				ch = shiftxform[ch];
 		routine(ch | ((ev->type == ev_textinput) ? TEXTINPUTEVENT : 0)); // Of course
 		return true;
 	}

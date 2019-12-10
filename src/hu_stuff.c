@@ -1336,6 +1336,22 @@ boolean HU_Responder(event_t *ev)
 
 		c = (INT32)ev->data1;
 
+		if (!cv_textinput.value)
+		{
+			// I know this looks very messy but this works. If it ain't broke, don't fix it!
+			// shift LETTERS to uppercase if we have capslock or are holding shift
+			if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z'))
+			{
+				if (shiftdown ^ capslock)
+					c = shiftxform[c];
+			}
+			else	// if we're holding shift we should still shift non letter symbols
+			{
+				if (shiftdown)
+					c = shiftxform[c];
+			}
+		}
+
 		// pasting. pasting is cool. chat is a bit limited, though :(
 		if (((c == 'v' || c == 'V') && ctrldown && ev->type == ev_keydown) && !CHAT_MUTE)
 		{
