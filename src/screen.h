@@ -148,7 +148,9 @@ extern consvar_t cv_scr_width, cv_scr_height, cv_scr_depth, cv_renderview, cv_fu
 // wait for page flipping to end or not
 extern consvar_t cv_vidwait;
 
-// This is an annoying place to put this cvar on
+// This is an annoying place to put these cvar on
+extern consvar_t cv_textinput;
+extern consvar_t cv_keyboardlocale;
 extern consvar_t cv_forceqwerty;
 
 // quick fix for tall/short skies, depending on bytesperpixel

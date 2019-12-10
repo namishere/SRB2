@@ -78,7 +78,7 @@
 #define KEY_F12 (KEY_XTMASK+41)
 
 #define KEY_CAPSLOCK (KEY_XTMASK+42)
-#define KEY_CONSOLE KEY_MENU // (KEY_XTMASK+43)
+#define KEY_CONSOLE '`' // This key is problematic, I'll put it back on tilde
 #define KEY_PAUSE (KEY_XTMASK+44)
 #define KEY_PRTSC (KEY_XTMASK+45)
 
