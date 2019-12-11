@@ -2128,14 +2128,14 @@ UINT8 V_CharUppercase(UINT8 chr)
 	// At least, not in Latin-1 Supplement
 	// But it's present Latin Extended-A
 	// Though it can't fit in a single byte
-	if ((char)chr == 'ÿ')
+	if ((char)chr == 0xFF) // 'ÿ'
 		return chr;
 	// No uppercase variant of these characters
-	if ((char)chr == 'ß' || (char)chr == '×' || (char)chr == '÷')
+	if ((char)chr == 0xDF || (char)chr == 0xD7 || (char)chr == 0xF7) // 'ß', '×' and '÷'
 		return chr;
 	// U+00C0 to U+00FE
 	// Lowercase characters start at U+00E0
-	if ((char)chr >= 'à' && (char)chr <= 'þ')
+	if ((char)chr >= 0xE0 && (char)chr <= 0xFE) // 'à' and 'þ'
 		return chr - 32;
 	return (UINT8)toupper((char)chr);
 }
