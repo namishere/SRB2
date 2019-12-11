@@ -304,6 +304,39 @@ void Portal_AddSkybox (const visplane_t* plane)
 	portal->clipline = -1;
 }
 
+/** Check if a line is behind a portal.
+ */
+boolean Portal_LineCulled (line_t* line)
+{
+	if (portalrender && portalclipline)
+	{
+		fixed_t dx, dy, left, right;
+		boolean cullfirst, cullsecond;
+
+		// v1
+		dx = (line->v1->x - portalclipline->v1->x);
+		dy = (line->v1->y - portalclipline->v1->y);
+
+		left = FixedMul(portalclipline->dy>>FRACBITS, dx);
+		right = FixedMul(dy, portalclipline->dx>>FRACBITS);
+
+		cullfirst = (right >= left);
+
+		// v2
+		dx = (line->v2->x - portalclipline->v1->x);
+		dy = (line->v2->y - portalclipline->v1->y);
+
+		left = FixedMul(portalclipline->dy>>FRACBITS, dx);
+		right = FixedMul(dy, portalclipline->dx>>FRACBITS);
+
+		cullsecond = (right >= left);
+
+		// cull if both points are behind the clip line
+		return (cullfirst && cullsecond);
+	}
+	return false;
+}
+
 /** Creates portals for the currently existing sky visplanes.
  * The visplanes are also removed and cleared from the list.
  */

@@ -394,6 +394,10 @@ static void R_AddLine(seg_t *line)
 
 	portalline = false;
 
+	// Lactozilla: Don't render any line that is behind a portal.
+	if (Portal_LineCulled(line->linedef))
+		return;
+
 	if (line->polyseg && !(line->polyseg->flags & POF_RENDERSIDES))
 		return;
 

@@ -55,5 +55,7 @@ void Portal_AddSkybox	(const visplane_t* plane);
 void Portal_ClipRange (portal_t* portal);
 void Portal_ClipApply (const portal_t* portal);
 
+boolean Portal_LineCulled (line_t* line);
+
 void Portal_AddSkyboxPortals (void);
 #endif
