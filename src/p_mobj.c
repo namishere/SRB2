@@ -11811,7 +11811,7 @@ You should think about modifying the deathmatch starts to take full advantage of
 	if (i == MT_TOKEN && ((gametype != GT_COOP && gametype != GT_COMPETITION) || tokenbits == 30 || tokenlist & (1 << tokenbits++)))
 		return; // you already got this token, or there are too many, or the gametype's not right
 
-	if (i == MT_EMBLEM && (netgame || multiplayer || (modifiedgame && !savemoddata))) // No cheating!!
+	if (i == MT_EMBLEM && (modifiedgame && !savemoddata)) // No cheating!!
 		return;
 
 	// Objectplace landing point
@@ -11962,7 +11962,7 @@ You should think about modifying the deathmatch starts to take full advantage of
 		mobj->color = (UINT8)emcolor;
 
 		if (emblemlocations[j].collected
-			|| (emblemlocations[j].type == ET_SKIN && emblemlocations[j].var != players[0].skin))
+			|| (emblemlocations[i].type == ET_SKIN && !netgame && emblemlocations[i].var != players[0].skin))
 		{
 			P_UnsetThingPosition(mobj);
 			mobj->flags |= MF_NOCLIP;
