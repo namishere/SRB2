@@ -3110,6 +3110,7 @@ static boolean R_ProcessPatchableFields(skin_t *skin, char *stoken, char *value)
 	GETINT(acceleration)
 	GETINT(contspeed)
 	GETINT(contangle)
+	GETINT(availability)
 #undef GETINT
 
 #define GETSKINCOLOR(field) else if (!stricmp(stoken, #field)) skin->field = R_GetColorByName(value);
