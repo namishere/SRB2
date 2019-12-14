@@ -678,8 +678,8 @@ static void CON_InputClear(void)
 static void CON_InputSetString(const char *c)
 {
 	memset(inputlines[inputline], 0, CON_MAXPROMPTCHARS);
-	strcpy(inputlines[inputline], c);
-	input_cur = input_sel = input_len = strlen(c);
+	HU_StringCopy((UINT8 *)inputlines[inputline], (const UINT8 *)c);
+	input_cur = input_sel = input_len = HU_StringLength((const UINT8 *)c);
 }
 
 static void CON_InputAddString(const char *c)
