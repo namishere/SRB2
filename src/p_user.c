@@ -9695,7 +9695,7 @@ boolean P_MoveChaseCamera(player_t *player, camera_t *thiscam, boolean resetcall
 
 	cameranoclip = (sign || player->powers[pw_carry] == CR_NIGHTSMODE || player->pflags & PF_NOCLIP) || (mo->flags & (MF_NOCLIP|MF_NOCLIPHEIGHT)); // Noclipping player camera noclips too!!
 
-	if (!(player->climbing || (player->powers[pw_carry] == CR_NIGHTSMODE) || player->playerstate == PST_DEAD || tutorialmode))
+	if (!(sign || player->climbing || (player->powers[pw_carry] == CR_NIGHTSMODE) || (player->powers[pw_carry] == CR_ZOOMTUBE) || (player->mo->flags2 & MF2_TWOD) || player->playerstate == PST_DEAD || tutorialmode)) //if this changes, update R_SetupFrame too!
 	{
 		if (player->spectator) // force cam off for spectators
 			return true;

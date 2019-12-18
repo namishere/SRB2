@@ -751,6 +751,7 @@ static void R_SetupFreelook(void)
 void R_SetupFrame(player_t *player)
 {
 	camera_t *thiscam;
+	mobj_t *sign = NULL;
 	boolean chasecam = false;
 
 	if (splitscreen && player == &players[secondarydisplayplayer]
@@ -765,7 +766,15 @@ void R_SetupFrame(player_t *player)
 		chasecam = (cv_chasecam.value != 0);
 	}
 
-	if (player->climbing || (player->powers[pw_carry] == CR_NIGHTSMODE) || player->playerstate == PST_DEAD || gamestate == GS_TITLESCREEN || tutorialmode)
+	if (player->exiting)
+	{
+		if (player->mo->target && player->mo->target->type == MT_SIGN && player->mo->target->spawnpoint
+		&& !(gametype == GT_COOP && (netgame || multiplayer) && cv_exitmove.value)
+		&& !(twodlevel || (player->mo->flags2 & MF2_TWOD)))
+			sign = player->mo->target;
+	}
+
+	if (sign || player->climbing || (player->powers[pw_carry] == CR_NIGHTSMODE) || (player->powers[pw_carry] == CR_ZOOMTUBE) || (player->mo && player->mo->flags2 & MF2_TWOD) || player->playerstate == PST_DEAD || gamestate == GS_TITLESCREEN || tutorialmode) // if this changes, update P_MoveChaseCamera too!
 		chasecam = true; // force chasecam on
 	else if (player->spectator) // no spectator chasecam
 		chasecam = false; // force chasecam off

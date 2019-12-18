@@ -1283,12 +1283,12 @@ void G_BuildTiccmd(ticcmd_t *cmd, INT32 realtics)
 	}
 
 	//Silly hack to make 2d mode *somewhat* playable with no chasecam.
-	if ((twodlevel || (player->mo && player->mo->flags2 & MF2_TWOD)) && !camera.chase)
+	/*if ((twodlevel || (player->mo && player->mo->flags2 & MF2_TWOD)) && !camera.chase)
 	{
 		INT32 temp = forward;
 		forward = side;
 		side = temp;
-	}
+	}*/
 
 	cmd->forwardmove = (SINT8)(cmd->forwardmove + forward);
 	cmd->sidemove = (SINT8)(cmd->sidemove + side);
@@ -1611,12 +1611,12 @@ void G_BuildTiccmd2(ticcmd_t *cmd, INT32 realtics)
 	}
 
 	//Silly hack to make 2d mode *somewhat* playable with no chasecam.
-	if ((twodlevel || (player->mo && player->mo->flags2 & MF2_TWOD)) && !camera2.chase)
+	/*if ((twodlevel || (player->mo && player->mo->flags2 & MF2_TWOD)) && !camera2.chase)
 	{
 		INT32 temp = forward;
 		forward = side;
 		side = temp;
-	}
+	}*/
 
 	cmd->forwardmove = (SINT8)(cmd->forwardmove + forward);
 	cmd->sidemove = (SINT8)(cmd->sidemove + side);
