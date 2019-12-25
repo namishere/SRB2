@@ -3367,6 +3367,9 @@ static boolean P_IsClimbingValid(player_t *player, angle_t angle)
 	return false;
 }
 
+// P_CheckWallCollision
+// This was separated from PTR_SlideTraverse so an easy
+// collision checker could be exposed through Lua
 boolean P_CheckWallCollision(mobj_t *mo, line_t *li)
 {
 	// one-sided linedefs are always solid to sliding movement.

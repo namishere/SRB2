@@ -1344,6 +1344,10 @@ static int lib_pCheckWallCollision(lua_State *L)
 {
 	mobj_t *thing = *((mobj_t **)luaL_checkudata(L, 1, META_MOBJ));
 	line_t *line = *((line_t **)luaL_checkudata(L, 2, META_LINE));
+	NOHUD
+	INLEVEL
+	if (!thing)
+		return LUA_ErrInvalid(L, "mobj_t");
 	lua_pushboolean(L, P_CheckWallCollision(thing, line));
 	return 1;
 }
